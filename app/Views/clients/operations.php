@@ -86,26 +86,24 @@
                     <button class="btn" type="submit">Transferrer</button>
                 </form>
             </div>
+            
             <div class="form-card">
                 <h2>Faire un transfert multiple</h2>
                 <p class="muted">Ajoutez plusieurs destinataires du même opérateur. Le montant total sera divisé équitablement.</p>
                 
                 <form method="post" action="/client/transfertMultiple" class="form-grid">
-                    <!-- Conteneur des champs de numéros dynamiques -->
                     <div id="destinatarires-container">
                         <label>Numéros destinataires</label>
                         <div class="destination-input-group" style="display: table; width: 100%; margin-bottom: 8px;">
                             <div style="display: table-cell; width: 100%;">
                                 <input name="dest_nums[]" type="text" placeholder="Ex: 0341234567" class="dest-num-field" required>
                             </div>
-                            <!-- On ne peut pas supprimer le premier champ obligatoire -->
                             <div style="display: table-cell; padding-left: 8px; vertical-align: middle;">
                                 <button type="button" class="btn-secondary" style="padding: 10px; opacity: 0.5; cursor: not-allowed;" disabled>×</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Bouton pour ajouter un champ -->
                     <div style="margin-bottom: 16px;">
                         <button type="button" id="add-dest-btn" class="btn-secondary" style="padding: 6px 12px; font-size: 0.85em;">
                             + Ajouter un destinataire
@@ -113,7 +111,7 @@
                     </div>
 
                     <div>
-                        <label for="transfert_valeur_multiple">Montant Total à diviser</label>
+                        <label for="transfert_valeur_multiple">Montant global à diviser</label>
                         <input id="transfert_valeur_multiple" name="valeur" type="number" step="0.01" min="0.01" placeholder="30000" required>
                     </div>
 
@@ -132,123 +130,149 @@
                     <button class="btn" type="submit">Transférer à tous</button>
                 </form>
             </div>
-
         </section>
     </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const feeRules = <?= $feeRulesJson ?: '[]' ?>;
-    const singleAmountInput = document.getElementById('transfert_valeur');
-    const singleFeeSelect = document.getElementById('with_fee');
-    const singleFeePreview = document.querySelector('[data-single-fee-preview]');
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const feeRules = <?= $feeRulesJson ?: '[]' ?>;
+            const singleAmountInput = document.getElementById('transfert_valeur');
+            const singleFeeSelect = document.getElementById('with_fee');
+            const singleFeePreview = document.querySelector('[data-single-fee-preview]');
 
-    const container = document.getElementById('destinatarires-container');
-    const addBtn = document.getElementById('add-dest-btn');
-    const totalValueInput = document.getElementById('transfert_valeur_multiple');
-    const multipleFeeSelect = document.getElementById('with_fee_multiple');
-    const multipleFeePreview = document.querySelector('[data-multiple-fee-preview]');
+            const container = document.getElementById('destinatarires-container');
+            const addBtn = document.getElementById('add-dest-btn');
+            const totalValueInput = document.getElementById('transfert_valeur_multiple');
+            const multipleFeeSelect = document.getElementById('with_fee_multiple');
+            const multipleFeePreview = document.querySelector('[data-multiple-fee-preview]');
 
-    function findTransferFee(amount) {
-        const numericAmount = Number(amount);
-        if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-            return 0;
-        }
+            function findTransferFee(amount) {
+                const numericAmount = Number(amount);
+                if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+                    return 0;
+                }
 
-        const rule = feeRules.find(function (entry) {
-            return String(entry.type_label || '').toLowerCase() === 'transfert'
-                && numericAmount >= Number(entry.min)
-                && numericAmount <= Number(entry.max);
-        });
+                const rule = feeRules.find(function (entry) {
+                    return String(entry.type_label || '').toLowerCase() === 'transfert'
+                        && numericAmount >= Number(entry.min)
+                        && numericAmount <= Number(entry.max);
+                });
 
-        return rule ? Number(rule.valeur) : 0;
-    }
-
-    function updateSingleFeePreview() {
-        if (!singleFeePreview) {
-            return;
-        }
-
-        const amount = Number(singleAmountInput.value);
-        const withFee = singleFeeSelect.value === '1';
-
-        if (!Number.isFinite(amount) || amount <= 0) {
-            singleFeePreview.style.display = 'none';
-            return;
-        }
-
-        const fee = withFee ? findTransferFee(amount) : 0;
-        const totalDebit = amount + fee;
-        singleFeePreview.style.display = 'block';
-        singleFeePreview.querySelector('span').textContent = withFee
-            ? `frais ${fee.toFixed(2)} BGA, total débité ${totalDebit.toFixed(2)} BGA`
-            : 'aucun frais, total débité identique au montant saisi';
-    }
-
-    function calculateDynamicSplit() {
-        const fields = container.querySelectorAll('.dest-num-field');
-        const totalAmount = parseFloat(totalValueInput.value);
-
-        let count = 0;
-        fields.forEach(function (field) {
-            if (field.value.trim().length > 0) {
-                count++;
+                return rule ? Number(rule.valeur) : 0;
             }
-        });
 
-        if (!multipleFeePreview || count <= 0 || Number.isNaN(totalAmount) || totalAmount <= 0) {
-            if (multipleFeePreview) {
-                multipleFeePreview.style.display = 'none';
+            // 1. Gestion du Transfert Simple (Nouvelle Logique)
+            function updateSingleFeePreview() {
+                if (!singleFeePreview) {
+                    return;
+                }
+
+                const amountSaisi = Number(singleAmountInput.value);
+                const withFee = singleFeeSelect.value === '1';
+
+                if (!Number.isFinite(amountSaisi) || amountSaisi <= 0) {
+                    singleFeePreview.style.display = 'none';
+                    return;
+                }
+
+                const fee = findTransferFee(amountSaisi);
+                
+                // Avec frais : Débit = Saisi + Frais | Reçu = Saisi
+                // Sans frais : Débit = Saisi         | Reçu = Saisi - Frais
+                const totalDebite = withFee ? amountSaisi + fee : amountSaisi;
+                const montantRecu = withFee ? amountSaisi : amountSaisi - fee;
+
+                if (!withFee && montantRecu <= 0) {
+                    singleFeePreview.style.display = 'block';
+                    singleFeePreview.querySelector('span').textContent = 'Les frais dépassent ou égalent le montant saisi.';
+                    return;
+                }
+
+                singleFeePreview.style.display = 'block';
+                singleFeePreview.querySelector('span').textContent = withFee
+                    ? `frais ${fee.toFixed(2)} BGA, total débité ${totalDebite.toFixed(2)} BGA (Le destinataire recevra exactement ${montantRecu.toFixed(2)} BGA)`
+                    : `frais ${fee.toFixed(2)} BGA, total débité ${totalDebite.toFixed(2)} BGA (Le destinataire recevra ${montantRecu.toFixed(2)} BGA)`;
             }
-            return;
-        }
 
-        const amountPerPerson = totalAmount / count;
-        const withFee = multipleFeeSelect.value === '1';
-        const feePerTransfer = withFee ? findTransferFee(amountPerPerson) : 0;
-        const totalFee = feePerTransfer * count;
-        const totalDebit = totalAmount + totalFee;
+            // 2. Gestion du Transfert Multiple (Division globale puis Logique Frais)
+            function calculateDynamicSplit() {
+                const fields = container.querySelectorAll('.dest-num-field');
+                const totalAmountSaisi = parseFloat(totalValueInput.value);
 
-        multipleFeePreview.style.display = 'block';
-        multipleFeePreview.querySelector('span').textContent = `${count} destinataire(s), ${amountPerPerson.toFixed(2)} BGA chacun, frais total ${totalFee.toFixed(2)} BGA, débit total ${totalDebit.toFixed(2)} BGA.`;
-    }
+                let count = 0;
+                fields.forEach(function (field) {
+                    if (field.value.trim().length > 0) {
+                        count++;
+                    }
+                });
 
-    addBtn.addEventListener('click', function () {
-        const newGroup = document.createElement('div');
-        newGroup.className = 'destination-input-group';
-        newGroup.style.display = 'table';
-        newGroup.style.width = '100%';
-        newGroup.style.marginBottom = '8px';
+                if (!multipleFeePreview || count <= 0 || Number.isNaN(totalAmountSaisi) || totalAmountSaisi <= 0) {
+                    if (multipleFeePreview) {
+                        multipleFeePreview.style.display = 'none';
+                    }
+                    return;
+                }
 
-        newGroup.innerHTML = `
-            <div style="display: table-cell; width: 100%;">
-                <input name="dest_nums[]" type="text" placeholder="Ex: 0341234567" class="dest-num-field" required>
-            </div>
-            <div style="display: table-cell; padding-left: 8px; vertical-align: middle;">
-                <button type="button" class="btn-secondary remove-dest-btn" style="padding: 10px; background-color: #dc3545; color: white; border: none;">×</button>
-            </div>
-        `;
+                const withFee = multipleFeeSelect.value === '1';
+                
+                // DIVISION STRICTE PAR LE NOMBRE DE PERSONNES
+                const montantBrutParPersonne = totalAmountSaisi / count;
+                const feePerTransfer = findTransferFee(montantBrutParPersonne);
 
-        container.appendChild(newGroup);
+                // Avec frais : Débit Global = Total + (Frais * N) | Chaque reçu = Part brute
+                // Sans frais : Débit Global = Total               | Chaque reçu = Part brute - Frais
+                const totalDebit = withFee ? totalAmountSaisi + (feePerTransfer * count) : totalAmountSaisi;
+                const montantRecuParPersonne = withFee ? montantBrutParPersonne : montantBrutParPersonne - feePerTransfer;
+                const totalFee = feePerTransfer * count;
 
-        newGroup.querySelector('.dest-num-field').addEventListener('input', calculateDynamicSplit);
-        newGroup.querySelector('.remove-dest-btn').addEventListener('click', function () {
-            newGroup.remove();
+                if (!withFee && montantRecuParPersonne <= 0) {
+                    multipleFeePreview.style.display = 'block';
+                    multipleFeePreview.querySelector('span').textContent = 'Les frais unitaires dépassent ou égalent la part par personne.';
+                    return;
+                }
+
+                multipleFeePreview.style.display = 'block';
+                multipleFeePreview.querySelector('span').textContent = withFee
+                    ? `${count} destinataire(s) recevront chacun ${montantRecuParPersonne.toFixed(2)} BGA. Frais total : ${totalFee.toFixed(2)} BGA. Débit global de votre compte : ${totalDebit.toFixed(2)} BGA.`
+                    : `${count} destinataire(s) recevront chacun ${montantRecuParPersonne.toFixed(2)} BGA. Frais total : ${totalFee.toFixed(2)} BGA. Débit global : ${totalDebit.toFixed(2)} BGA.`;
+            }
+
+            addBtn.addEventListener('click', function () {
+                const newGroup = document.createElement('div');
+                newGroup.className = 'destination-input-group';
+                newGroup.style.display = 'table';
+                newGroup.style.width = '100%';
+                newGroup.style.marginBottom = '8px';
+
+                newGroup.innerHTML = `
+                    <div style="display: table-cell; width: 100%;">
+                        <input name="dest_nums[]" type="text" placeholder="Ex: 0341234567" class="dest-num-field" required>
+                    </div>
+                    <div style="display: table-cell; padding-left: 8px; vertical-align: middle;">
+                        <button type="button" class="btn-secondary remove-dest-btn" style="padding: 10px; background-color: #dc3545; color: white; border: none;">×</button>
+                    </div>
+                `;
+
+                container.appendChild(newGroup);
+
+                newGroup.querySelector('.dest-num-field').addEventListener('input', calculateDynamicSplit);
+                newGroup.querySelector('.remove-dest-btn').addEventListener('click', function () {
+                    newGroup.remove();
+                    calculateDynamicSplit();
+                });
+
+                calculateDynamicSplit();
+            });
+
+            container.querySelector('.dest-num-field').addEventListener('input', calculateDynamicSplit);
+            totalValueInput.addEventListener('input', calculateDynamicSplit);
+            singleAmountInput.addEventListener('input', updateSingleFeePreview);
+            singleFeeSelect.addEventListener('change', updateSingleFeePreview);
+            multipleFeeSelect.addEventListener('change', calculateDynamicSplit);
+
+            updateSingleFeePreview();
             calculateDynamicSplit();
         });
-
-        calculateDynamicSplit();
-    });
-
-    container.querySelector('.dest-num-field').addEventListener('input', calculateDynamicSplit);
-    totalValueInput.addEventListener('input', calculateDynamicSplit);
-    singleAmountInput.addEventListener('input', updateSingleFeePreview);
-    singleFeeSelect.addEventListener('change', updateSingleFeePreview);
-    multipleFeeSelect.addEventListener('change', calculateDynamicSplit);
-
-    updateSingleFeePreview();
-    calculateDynamicSplit();
-});
-</script>
+    </script>
 </body>
 </html>

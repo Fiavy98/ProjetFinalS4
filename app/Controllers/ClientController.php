@@ -99,12 +99,12 @@ class ClientController extends BaseController
         }
 
         helper(['form', 'url']);
-            if (! $this->request->is('post')) {
+        if (! $this->request->is('post')) {
             return redirect()->to('/client/operations');
         }
 
         $destNum = trim((string) $this->request->getPost('dest_num'));
-        $amount = (float) $this->request->getPost('valeur');
+        $amount = (float) $this->request->getPost('valeur'); 
         $withFee = (bool) $this->request->getPost('with_fee');
 
         if ($amount <= 0) {
@@ -117,8 +117,17 @@ class ClientController extends BaseController
         }
 
         $typeId = $this->ensureTypeOperation('transfert');
-        $feeValue = $withFee ? $this->resolveFeeValue($typeId, $amount) : 0.0;
-        $totalDebit = $amount + $feeValue;
+        
+        // Calcul des frais (Sécurisé par rapport au libellé)
+        $feeValue = $this->resolveFeeValue($typeId, $amount);
+
+        // Logique : Avec frais (Débit = Saisi + Frais, Reçu = Saisi) / Sans frais (Débit = Saisi, Reçu = Saisi - Frais)
+        $totalDebit = $withFee ? $amount + $feeValue : $amount;
+        $amountReceived = $withFee ? $amount : $amount - $feeValue;
+
+        if ($amountReceived <= 0) {
+            return $this->redirectWithError('Le montant reçu après déclusion des frais doit être positif.');
+        }
 
         $db = db_connect();
         $db->transStart();
@@ -126,15 +135,15 @@ class ClientController extends BaseController
         $freshClient = $this->clientModel->find($client['id']);
         if ((float) $freshClient['solde'] < $totalDebit) {
             $db->transRollback();
-            return $this->redirectWithError('Solde insuffisant pour effectuer le transfert.');
+            return $this->redirectWithError('Solde insuffisant pour effectuer le transfert (frais inclus).');
         }
 
         $operationId = $this->operationModel->insert([
             'idTypeOperation' => $typeId,
             'idClient' => $client['id'],
-            'valeur' => $amount,
+            'valeur' => $amountReceived,
             'idFrais' => null,
-            'description' => 'Transfert vers ' . $destination['num'] . ($withFee ? ' avec frais' : ' sans frais'),
+            'description' => 'Transfert vers ' . $destination['num'] . ($withFee ? ' (avec frais additionnels)' : ' (sans frais, frais déduits du reçu)'),
             'dateheure' => date('Y-m-d H:i:s'),
         ], true);
 
@@ -144,7 +153,7 @@ class ClientController extends BaseController
 
         $destinationFresh = $this->clientModel->find($destination['id']);
         $this->clientModel->update($destination['id'], [
-            'solde' => (float) $destinationFresh['solde'] + $amount,
+            'solde' => (float) $destinationFresh['solde'] + $amountReceived,
         ]);
 
         $this->historyModel->insert([
@@ -155,7 +164,135 @@ class ClientController extends BaseController
 
         $db->transComplete();
 
-        return redirect()->to('/client/operations')->with('message', 'Transfert effectue avec succes.');
+        $message = 'Transfert effectue avec succes. Le destinataire a reçu ' . number_format($amountReceived, 2, ',', ' ') . ' BGA.';
+        $message .= ' Total débité de votre compte : ' . number_format($totalDebit, 2, ',', ' ') . ' BGA (dont ' . number_format($feeValue, 2, ',', ' ') . ' BGA de frais).';
+
+        return redirect()->to('/client/operations')->with('message', $message);
+    }
+
+    public function transfertMultiple()
+    {
+        $client = $this->requireClient();
+        if ($client === null) {
+            return redirect()->to('/client/login');
+        }
+
+        helper(['form', 'url']);
+        if (! $this->request->is('post')) {
+            return redirect()->to('/client/operations');
+        }
+
+        $destNumsInput = $this->request->getPost('dest_nums');
+        $totalAmountSaisi = (float) $this->request->getPost('valeur'); 
+        $withFee = (bool) $this->request->getPost('with_fee');
+
+        if ($totalAmountSaisi <= 0) {
+            return $this->redirectWithError('Le montant du transfert doit être positif.');
+        }
+
+        if (is_array($destNumsInput)) {
+            $destNums = array_values(array_filter(array_map('trim', $destNumsInput)));
+        } else {
+            $destNums = array_values(array_filter(array_map('trim', explode(',', (string) $destNumsInput))));
+        }
+
+        if (empty($destNums)) {
+            return $this->redirectWithError('Veuillez spécifier au moins un numéro de destination.');
+        }
+
+        $count = count($destNums);
+
+        $operators = db_connect()->table('operateur')->get()->getResultArray();
+        $getOperatorId = function (string $num) use ($operators) {
+            $prefix3 = substr($num, 0, 3);
+            foreach ($operators as $op) {
+                $prefixes = explode(',', $op['prefixes']);
+                if (in_array($prefix3, $prefixes)) {
+                    return (int) $op['id'];
+                }
+            }
+            return null;
+        };
+
+        $firstOpId = null;
+        $destinations = [];
+
+        foreach ($destNums as $num) {
+            $destination = $this->clientModel->where('num', $num)->first();
+            if (! $destination) {
+                return $this->redirectWithError("Le compte destination {$num} est introuvable.");
+            }
+
+            $opId = $getOperatorId($num);
+            if ($opId === null) {
+                return $this->redirectWithError("L'opérateur du numéro {$num} n'est pas reconnu.");
+            }
+
+            if ($firstOpId === null) {
+                $firstOpId = $opId;
+            } elseif ($firstOpId !== $opId) {
+                return $this->redirectWithError("Tous les numéros doivent appartenir au même opérateur.");
+            }
+
+            $destinations[] = $destination;
+        }
+
+        $typeId = $this->ensureTypeOperation('transfert');
+        
+        // Division globale par le nombre de personnes
+        $amountPerPersonSaisi = $totalAmountSaisi / $count;
+        
+        // Calcul des frais par rapport à la part individuelle brute
+        $feePerTransfer = $this->resolveFeeValue($typeId, $amountPerPersonSaisi);
+
+        $amountReceivedPerPerson = $withFee ? $amountPerPersonSaisi : $amountPerPersonSaisi - $feePerTransfer;
+        $totalDebit = $withFee ? $totalAmountSaisi + ($feePerTransfer * $count) : $totalAmountSaisi;
+
+        if ($amountReceivedPerPerson <= 0) {
+            return $this->redirectWithError('Le montant reçu par personne après déduction des frais doit être positif.');
+        }
+
+        $db = db_connect();
+        $db->transStart();
+
+        $freshClient = $this->clientModel->find($client['id']);
+        if ((float) $freshClient['solde'] < $totalDebit) {
+            $db->transRollback();
+            return $this->redirectWithError('Solde insuffisant pour effectuer ce transfert multiple.');
+        }
+
+        $this->clientModel->update($client['id'], [
+            'solde' => (float) $freshClient['solde'] - $totalDebit,
+        ]);
+
+        foreach ($destinations as $destination) {
+            $operationId = $this->operationModel->insert([
+                'idTypeOperation' => $typeId,
+                'idClient' => $client['id'],
+                'valeur' => $amountReceivedPerPerson,
+                'idFrais' => null,
+                'description' => 'Transfert multiple vers ' . $destination['num'] . ($withFee ? ' (avec frais additionnels)' : ' (sans frais, déduits du reçu)'),
+                'dateheure' => date('Y-m-d H:i:s'),
+            ], true);
+
+            $destinationFresh = $this->clientModel->find($destination['id']);
+            $this->clientModel->update($destination['id'], [
+                'solde' => (float) $destinationFresh['solde'] + $amountReceivedPerPerson,
+            ]);
+
+            $this->historyModel->insert([
+                'idClient' => $client['id'],
+                'idOperation' => $operationId,
+                'dateheure' => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        $db->transComplete();
+
+        $message = "Transfert multiple effectué avec succès. Les {$count} destinataires reçoivent chacun " . number_format($amountReceivedPerPerson, 2, ',', ' ') . " BGA.";
+        $message .= ' Total débité : ' . number_format($totalDebit, 2, ',', ' ') . ' BGA (Frais totaux : ' . number_format($feePerTransfer * $count, 2, ',', ' ') . ' BGA).';
+
+        return redirect()->to('/client/operations')->with('message', $message);
     }
 
     public function solde()
@@ -202,7 +339,7 @@ class ClientController extends BaseController
 
         helper(['form', 'url']);
 
-            if (! $this->request->is('post')) {
+        if (! $this->request->is('post')) {
             return redirect()->to('/client/operations');
         }
 
@@ -261,7 +398,11 @@ class ClientController extends BaseController
 
     private function ensureTypeOperation(string $label): int
     {
-        $existing = $this->typeOperationModel->where('libele', $label)->first();
+        // Tolérance casse : cherche d'abord en minuscule ou tel quel
+        $existing = $this->typeOperationModel
+            ->like('libele', $label, 'none', null, true)
+            ->first();
+
         if ($existing) {
             return (int) $existing['id'];
         }
@@ -292,137 +433,32 @@ class ClientController extends BaseController
 
     private function resolveFeeValue(int $typeId, float $amount): float
     {
-        $fee = db_connect()->table('frais')
-            ->where('idTypeOperation', $typeId)
-            ->where('min <=', $amount)
-            ->where('max >=', $amount)
-            ->get()
-            ->getFirstRow('array');
+        // On récupère le libellé exact lié à cet ID
+        $typeOp = $this->typeOperationModel->find($typeId);
+        $label = $typeOp ? strtolower(trim((string)$typeOp['libele'])) : '';
+
+        // Si l'ID passé ne correspond à rien de connu mais ressemble à du transfert,
+        // ou si la table frais utilise l'ID historique 3 pour 'transfert', on sécurise la requête :
+        $db = db_connect();
+        $builder = $db->table('frais')
+            ->select('frais.valeur')
+            ->join('typeOperation', 'typeOperation.id = frais.idTypeOperation')
+            ->where('frais.min <=', $amount)
+            ->where('frais.max >=', $amount);
+
+        if ($label === 'transfert') {
+            // Cherche soit par l'ID fourni, soit directement là où le libellé est 'transfert' (comme ton ID 3)
+            $builder->groupStart()
+                    ->where('frais.idTypeOperation', $typeId)
+                    ->orLike('typeOperation.libele', 'transfert', 'none', null, true)
+                    ->groupEnd();
+        } else {
+            $builder->where('frais.idTypeOperation', $typeId);
+        }
+
+        $fee = $builder->get()->getFirstRow('array');
 
         return $fee ? (float) $fee['valeur'] : 0.0;
-    }
-    
-    public function transfertMultiple()
-    {
-        $client = $this->requireClient();
-        if ($client === null) {
-            return redirect()->to('/client/login');
-        }
-
-        helper(['form', 'url']);
-        if (! $this->request->is('post')) {
-            return redirect()->to('/client/operations');
-        }
-
-        $destNumsInput = $this->request->getPost('dest_nums');
-        $totalAmount = (float) $this->request->getPost('valeur');
-        $withFee = (bool) $this->request->getPost('with_fee');
-
-        if ($totalAmount <= 0) {
-            return $this->redirectWithError('Le montant du transfert doit être positif.');
-        }
-
-        if (is_array($destNumsInput)) {
-            $destNums = array_values(array_filter(array_map('trim', $destNumsInput)));
-        } else {
-            $destNums = array_values(array_filter(array_map('trim', explode(',', (string) $destNumsInput))));
-        }
-
-        if (empty($destNums)) {
-            return $this->redirectWithError('Veuillez spécifier au moins un numéro de destination.');
-        }
-
-        $count = count($destNums);
-        $amountPerNum = $totalAmount / $count;
-
-        // Récupération des opérateurs pour la vérification des préfixes
-        $operators = db_connect()->table('operateur')->get()->getResultArray();
-        
-        $getOperatorId = function (string $num) use ($operators) {
-            $prefix3 = substr($num, 0, 3);
-            foreach ($operators as $op) {
-                $prefixes = explode(',', $op['prefixes']);
-                if (in_array($prefix3, $prefixes)) {
-                    return (int) $op['id'];
-                }
-            }
-            return null;
-        };
-
-        $firstOpId = null;
-        $destinations = [];
-
-        // Validation des comptes et de la contrainte "même opérateur uniquement"
-        foreach ($destNums as $num) {
-            $destination = $this->clientModel->where('num', $num)->first();
-            if (! $destination) {
-                return $this->redirectWithError("Le compte destination {$num} est introuvable.");
-            }
-
-            $opId = $getOperatorId($num);
-            if ($opId === null) {
-                return $this->redirectWithError("L'opérateur du numéro {$num} n'est pas reconnu.");
-            }
-
-            if ($firstOpId === null) {
-                $firstOpId = $opId;
-            } elseif ($firstOpId !== $opId) {
-                return $this->redirectWithError("Tous les numéros doivent appartenir au même opérateur.");
-            }
-
-            $destinations[] = $destination;
-        }
-
-        // Calcul des frais par transaction individuelle et débit total
-        $typeId = $this->ensureTypeOperation('transfert');
-        $feePerTransfer = $withFee ? $this->resolveFeeValue($typeId, $amountPerNum) : 0.0;
-        $totalDebit = ($amountPerNum + $feePerTransfer) * $count;
-
-        $db = db_connect();
-        $db->transStart();
-
-        $freshClient = $this->clientModel->find($client['id']);
-        if ((float) $freshClient['solde'] < $totalDebit) {
-            $db->transRollback();
-            return $this->redirectWithError('Solde insuffisant pour effectuer ce transfert multiple.');
-        }
-
-        // Débit du compte émetteur
-        $this->clientModel->update($client['id'], [
-            'solde' => (float) $freshClient['solde'] - $totalDebit,
-        ]);
-
-        // Crédit de chaque compte destinataire et enregistrement des historiques
-        foreach ($destinations as $destination) {
-            $operationId = $this->operationModel->insert([
-                'idTypeOperation' => $typeId,
-                'idClient' => $client['id'],
-                'valeur' => $amountPerNum,
-                'idFrais' => null,
-                'description' => 'Transfert multiple vers ' . $destination['num'] . ($withFee ? ' avec frais' : ' sans frais'),
-                'dateheure' => date('Y-m-d H:i:s'),
-            ], true);
-
-            $destinationFresh = $this->clientModel->find($destination['id']);
-            $this->clientModel->update($destination['id'], [
-                'solde' => (float) $destinationFresh['solde'] + $amountPerNum,
-            ]);
-
-            $this->historyModel->insert([
-                'idClient' => $client['id'],
-                'idOperation' => $operationId,
-                'dateheure' => date('Y-m-d H:i:s'),
-            ]);
-        }
-
-        $db->transComplete();
-
-        $message = 'Transfert multiple effectué avec succès.';
-        if ($withFee) {
-            $message .= ' Frais total estimé: ' . number_format($feePerTransfer * $count, 2, ',', ' ') . '.';
-        }
-
-        return redirect()->to('/client/operations')->with('message', $message);
     }
 
     private function getFeeRules(): array
@@ -435,5 +471,4 @@ class ClientController extends BaseController
             ->get()
             ->getResultArray();
     }
-
 }
