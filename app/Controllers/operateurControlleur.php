@@ -2,11 +2,17 @@
 
 namespace App\Controllers;
 
+use App\Models\client;
+use App\Models\frais;
+use App\Models\gain;
+use App\Models\operateur;
+use App\Models\operation;
+
 class operateurControlleur extends BaseController
 {
     public function verifierPrefixe($numero)
     {
-        $operateurModel = new \App\Models\operateur();
+        $operateurModel = new operateur();
 
         // Récupérer les opérateurs
         $operateurs = $operateurModel->findAll();
@@ -36,7 +42,7 @@ class operateurControlleur extends BaseController
 
     public function calculerFrais($idTypeOperation, $montant, $avecFrais = true)
     {
-        $fraisModel = new \App\Models\frais();
+        $fraisModel = new frais();
 
         // Transfert sans frais
         if ($idTypeOperation == 3 && !$avecFrais) {
@@ -54,7 +60,7 @@ class operateurControlleur extends BaseController
 
     public function verifierCompte($idClient, $montant)
     {
-        $clientModel = new \App\Models\client();
+        $clientModel = new client();
     
         $client = $clientModel->find($idClient);
     
@@ -132,7 +138,7 @@ class operateurControlleur extends BaseController
     public function frais()
     {
 
-        $model=new frais();
+        $model = new frais();
 
 
         $data=[
@@ -151,7 +157,7 @@ class operateurControlleur extends BaseController
     public function gains()
     {
 
-        $model=new gain();
+        $model = new gain();
 
 
         $data=[
