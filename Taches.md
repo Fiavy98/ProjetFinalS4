@@ -2,7 +2,7 @@
 
 # TODO LISTE
 
-## [ok] Base de donnees
+## [OK] Base de donnees
 
 ### Table operateur
 - id
@@ -283,3 +283,133 @@
     - [OK] operations.php
     - [OK] voirSolde.php
     - [OK] historique.php
+
+
+# Version 2
+
+## Côté client 
+
+- Frais
+ - [OK] Option inclure frais de retrait lors de l’envoi
+ - [OK] Affiché les frais à
+ - [OK] Notifié le client d'un transfert réussit
+
+- Envoi multiple vers plusieurs numéros ( divisé le montant pour chaque numéro)
+même opérateur uniquement
+ - [OK] ajout d'un nouveau formulaire multiple côté view client
+ - [OK] script js pour calcul dynamique au côté front-end 
+ - ClientController.php 
+  - [OK] modifier le controller pour envoyer à plusieurs autres clients en même temps 
+
+
+  ## Tache 1 : Configuration des prefixes valable pour les autre operateurs 
+- ajoute les autre operateur dans base de donnes (Table operateurs)
+
+## Tache 2 : Configuration % en plus de commissions pour les transferts vers les autres opérateurs  
+### Base de donnees
+
+- [ok] Ajouter une table commissionAutreOperateur
+    - id
+    - idOperateur
+    - idTypeOperation
+    - pourcentage
+
+- [ok] Configurer le pourcentage de commission pour chaque operateur et type d operation
+
+---
+
+### Verification du transfert
+
+- [ok] Recuperer le numero du destinataire
+- [ok] Determiner son operateur a partir du prefixe
+- [ok] Comparer l operateur de l expediteur et celui du destinataire
+
+#### Meme operateur
+
+- [ok] Appliquer uniquement le frais normal du transfert
+- [ok] Continuer le traitement classique
+
+#### Autre operateur
+
+- [ok] Recuperer le pourcentage de commission correspondant
+- [ok] Calculer la commission supplementaire
+- [ok] Conserver le frais normal du transfert
+
+---
+### Calcul du montant a debiter
+
+- [ok] Recuperer le montant du transfert
+- [ok] Recuperer le frais normal selon la tranche
+- [ok] Calculer la commission vers l autre operateur
+- [ok] Calculer le montant total a debiter
+
+*Total = montant + frais + commission*
+
+## Tache 3 : Sur la page “Situation gain via les différents frais” , séparer opérateur et autres opérateurs
+
+### Affichage des gains de l operateur
+
+- [ok] Recuperer les gains provenant des frais des operations
+- [ok] Afficher uniquement les gains appartenant a l operateur courant
+- [ok] Afficher :
+    - Date
+    - Type d operation
+    - Montant du frais
+- [ok] Calculer le total des gains de l operateur
+
+---
+
+### Affichage des gains des autres operateurs
+
+- [ok] Recuperer les commissions des transferts vers les autres operateurs
+- [ok] Regrouper les gains par operateur
+- [ok] Afficher :
+    - Nom de l operateur
+    - Date
+    - Type d operation
+    - Commission recue
+- [ok] Calculer le total des commissions par operateur
+
+---
+
+### Situation generale
+
+- [ok] Afficher deux sections distinctes
+    - Gains de l operateur
+    - Gains des autres operateurs
+- [ok] Afficher le total de chaque section
+- [ok] Permettre une consultation simple de l historique des gains
+
+## Tache 4 : Situation des montants à envoyer à chaque opérateur
+### Recuperation des transferts
+
+- [ok] Recuperer tous les transferts vers les autres operateurs
+- [ok] Identifier l operateur destinataire a partir du prefixe
+- [ok] Ignorer les transferts effectues vers le meme operateur
+
+---
+
+### Calcul des montants
+
+- [ok] Recuperer le montant de chaque transfert
+- [ok] Regrouper les montants par operateur destinataire
+- [ok] Calculer le total a envoyer pour chaque operateur
+
+---
+
+### Affichage de la situation
+
+- [ok] Afficher le nom de chaque operateur
+- [ok] Afficher le nombre de transferts
+- [ok] Afficher le montant total a envoyer
+- [ok] Afficher le total general des montants a envoyer
+
+---
+
+### Verification
+
+- [ok] Verifier que seuls les transferts vers un autre operateur sont pris en compte
+- [ok] Verifier que les montants correspondent aux operations enregistrees
+- [ok] Verifier que les calculs sont corrects
+---
+Rédiger

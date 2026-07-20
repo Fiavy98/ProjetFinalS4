@@ -15,6 +15,7 @@ $routes->post('/client/retrait', 'ClientController::retrait');
 $routes->post('/client/transfert', 'ClientController::transfert');
 $routes->get('/client/solde', 'ClientController::solde');
 $routes->get('/client/historique', 'ClientController::historique');
+$routes->match(['get', 'post'], '/client/transfertMultiple', 'ClientController::transfertMultiple');
 
 $routes->get('/operateur', 'operateurControlleur::index');
 $routes->match(['get', 'post'], '/operateur/login', 'operateurControlleur::login');
