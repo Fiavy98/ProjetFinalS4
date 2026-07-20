@@ -63,7 +63,7 @@
 
 - [OK] Recuperer les prefixes depuis la table operateur
 - [OK] Separer les differents prefixes stockes
-    - Exemple : 034,038 devient 034 et 038
+    - ex : 034,038 devient 034 et 038
 - [OK] Nettoyer le numero entre
     - Suppression des espaces et caracteres inutiles
 - [OK] Verifier si le numero commence par un prefixe configure
@@ -283,3 +283,187 @@
     - [OK] operations.php
     - [OK] voirSolde.php
     - [OK] historique.php
+
+
+
+# Version 2
+
+# Cote operateur 
+
+## Tache 1 : Configuration des prefixes valable pour les autre operateurs 
+- ajoute les autre operateur dans base de donnes (Table operateurs)
+
+## Tache 2 : Configuration % en plus de commissions pour les transferts vers les autres opérateurs  
+### Base de donnees
+
+- [ ] Ajouter une table `commissionAutreOperateur`
+    - id
+    - idOperateur
+    - idTypeOperation
+    - pourcentage
+
+- [ ] Configurer le pourcentage de commission pour chaque operateur et type d operation
+
+---
+
+### Verification du transfert
+
+- [ ] Recuperer le numero du destinataire
+- [ ] Determiner son operateur a partir du prefixe
+- [ ] Comparer l operateur de l expediteur et celui du destinataire
+
+#### Meme operateur
+
+- [ ] Appliquer uniquement le frais normal du transfert
+- [ ] Continuer le traitement classique
+
+#### Autre operateur
+
+- [ ] Recuperer le pourcentage de commission correspondant
+- [ ] Calculer la commission supplementaire
+- [ ] Conserver le frais normal du transfert
+
+---
+### Calcul du montant a debiter
+
+- [ ] Recuperer le montant du transfert
+- [ ] Recuperer le frais normal selon la tranche
+- [ ] Calculer la commission vers l autre operateur
+- [ ] Calculer le montant total a debiter
+
+**Total = montant + frais + commission**
+
+## Tache 3 : Sur la page “Situation gain via les différents frais” , séparer opérateur et autres opérateurs
+
+### Affichage des gains de l operateur
+
+- [ ] Recuperer les gains provenant des frais des operations
+- [ ] Afficher uniquement les gains appartenant a l operateur courant
+- [ ] Afficher :
+    - Date
+    - Type d operation
+    - Montant du frais
+- [ ] Calculer le total des gains de l operateur
+
+---
+
+### Affichage des gains des autres operateurs
+
+- [ ] Recuperer les commissions des transferts vers les autres operateurs
+- [ ] Regrouper les gains par operateur
+- [ ] Afficher :
+    - Nom de l operateur
+    - Date
+    - Type d operation
+    - Commission recue
+- [ ] Calculer le total des commissions par operateur
+
+---
+
+### Situation generale
+
+- [ ] Afficher deux sections distinctes
+    - Gains de l operateur
+    - Gains des autres operateurs
+- [ ] Afficher le total de chaque section
+- [ ] Permettre une consultation simple de l historique des gains
+
+## Tache 4 : Situation des montants à envoyer à chaque opérateur
+### Recuperation des transferts
+
+- [ ] Recuperer tous les transferts vers les autres operateurs
+- [ ] Identifier l operateur destinataire a partir du prefixe
+- [ ] Ignorer les transferts effectues vers le meme operateur
+
+---
+
+### Calcul des montants
+
+- [ ] Recuperer le montant de chaque transfert
+- [ ] Regrouper les montants par operateur destinataire
+- [ ] Calculer le total a envoyer pour chaque operateur
+
+---
+
+### Affichage de la situation
+
+- [ ] Afficher le nom de chaque operateur
+- [ ] Afficher le nombre de transferts
+- [ ] Afficher le montant total a envoyer
+- [ ] Afficher le total general des montants a envoyer
+
+---
+
+### Verification
+
+- [ ] Verifier que seuls les transferts vers un autre operateur sont pris en compte
+- [ ] Verifier que les montants correspondent aux operations enregistrees
+- [ ] Verifier que les calculs sont corrects
+---
+
+## Fichier 
+
+### A modifier
+- operateur.php
+- operation.php
+- gain.php
+- historiqueGain.php
+
+### A creer
+
+- commissionAutreOperateur.php
+
+## Views
+
+### A modifier
+
+- operateur/
+    - index.php
+    - gains.php
+
+### A creer
+
+- operateur/
+    - commissionAutreOperateur.php
+    - montantOperateur.php
+
+## route 
+- operateur/commission
+- operateur/montantOperateur
+
+## Fonctionnalites a ajouter dans operateurControlleur
+
+### Configuration
+
+- configurationCommission()
+
+### Verification
+
+- verifierOperateurDestinataire()
+
+### Calcul
+
+- calculerCommissionAutreOperateur()
+
+### Gain
+
+- gainOperateur()
+
+- gainAutreOperateur()
+
+### Situation
+
+- situationGain()
+
+- situationMontantOperateur()
+
+### Affichage
+
+- afficherCommission()
+
+- afficherMontantOperateur()
+
+
+# Cote client 
+## Tache 1 : Option inclure frais de retrait lors de l’envoi
+## Tache 2 : Envoi multiple vers plusieurs numéros ( divisé le montant pour chaque numéro)
