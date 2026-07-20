@@ -53,21 +53,39 @@
     - Tache3 : Situation gain
         - isue via l'operation retrait et transfert 
     - Tache4 : Situation de compte client 
-            - historique des 
+            - notification via un operation si inacceptable
+                - numero inconnu
+                - solde insuffisant
+                - etc  
     - Fichier
         - model 
-            - operateur
-            - typeOperation
-            - operation 
-            - gain
-            - historiqueGain
-            - frais 
+            - operateur.php
+            - typeOperation.php
+            - operation.php 
+            - gain.php
+            - historiqueGain.php
+            - frais.php 
+        - Controlleur
+            - operateurControlleur.php 
 - cote client 
-    - Tache 
+    - Tache 1 : Login 
+        - numero tel
+    - Tache 2 : Operation 
+        - Liste deroulante
+            - faire un depot 
+            - faire un retrait 
+            - un transfert (choix avec ou sans frais)
+    - Tache 3 : Voir solde 
+    - Tache 4 : voir historique  
     - fichier 
         - model 
-            - client 
-            - historique
+            - client.php 
+            - historique.php
         - controlleur
-            -  clientControlleur
+            -  clientControlleur.php
         - view 
+            - login 
+            - clients/
+                - operations.php
+                - voirSolde.php
+                - historique.php
