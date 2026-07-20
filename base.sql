@@ -71,11 +71,22 @@ CREATE TABLE historiqueOperationClient (
     FOREIGN KEY (idOperation) REFERENCES operation(id)
 );
 
+CREATE TABLE commissionAutreOperateur (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    idOperateur INTEGER NOT NULL,
+    idTypeOperation INTEGER NOT NULL,
+    pourcentage REAL NOT NULL,
+
+    FOREIGN KEY(idOperateur) REFERENCES operateur(id),
+    FOREIGN KEY(idTypeOperation) REFERENCES typeOperation(id)
+);
+
+
 -- Table operateur
 INSERT INTO operateur (nom, prefixes) VALUES
 ('Telma Money', '034,038'),
-('MVola', '032,033'),
-('Orange Money', '037,039');
+('Airtel', '033'),
+('Orange Money', '037,032');
 
 
 -- Table typeOperation
