@@ -1,0 +1,35 @@
+# Version 1
+## TODO LISTE
+- Base 
+    - operateur
+        - id 
+        - nom
+        - prefixes 
+    - typeOperation
+        - id 
+        - libele
+    - operation 
+        - id 
+        - idTypeOperation
+        - idClient
+        - valeur
+        - idfrais
+        - description
+        - dateheure
+    - frais
+        - id 
+        - typeOperation 
+        - min
+        - max
+        - valeur
+    - client 
+        - id
+        - nom
+        - idOperation
+        - solde 
+    - historique 
+        - id
+        - idClient
+        - idOperation 
+        - dateheure 
+
