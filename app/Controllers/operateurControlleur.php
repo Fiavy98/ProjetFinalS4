@@ -10,6 +10,34 @@ use App\Models\operation as OperationModel;
 
 class operateurControlleur extends BaseController
 {
+    private const ADMIN_NUM = '999999999';
+    private const ADMIN_PASSWORD = 'admin123';
+
+    public function login()
+    {
+        helper(['form', 'url']);
+
+        if ($this->request->is('post')) {
+            $numero = trim((string) $this->request->getPost('num'));
+            $mdp = trim((string) $this->request->getPost('mdp'));
+
+            if ($numero === self::ADMIN_NUM && $mdp === self::ADMIN_PASSWORD) {
+                session()->set('operateur_logged_in', true);
+                return redirect()->to('/operateur');
+            }
+
+            return redirect()->to('/')->with('admin_error', 'Numero ou mot de passe administrateur invalide.');
+        }
+
+        return redirect()->to('/');
+    }
+
+    public function logout()
+    {
+        session()->remove('operateur_logged_in');
+        return redirect()->to('/')->with('admin_message', 'Deconnexion operateur effectuee.');
+    }
+
     public function verifierPrefixe($numero)
     {
         $operateurModel = new OperateurModel();
@@ -87,6 +115,10 @@ class operateurControlleur extends BaseController
     }
     public function index()
     {
+        if (! session()->get('operateur_logged_in')) {
+            return redirect()->to('/')->with('admin_message', 'Connectez-vous pour acceder a l espace operateur.');
+        }
+
         return view('operateur/index');
     }
 
@@ -94,6 +126,9 @@ class operateurControlleur extends BaseController
 
     public function profil()
     {
+        if (! session()->get('operateur_logged_in')) {
+            return redirect()->to('/');
+        }
 
         $model = new OperateurModel();
 
@@ -113,6 +148,9 @@ class operateurControlleur extends BaseController
     // Toutes les opérations
     public function operations()
     {
+        if (! session()->get('operateur_logged_in')) {
+            return redirect()->to('/');
+        }
 
         $model = new OperationModel();
 
@@ -137,6 +175,9 @@ class operateurControlleur extends BaseController
 
     public function frais()
     {
+        if (! session()->get('operateur_logged_in')) {
+            return redirect()->to('/');
+        }
 
         $model = new FraisModel();
 
@@ -156,6 +197,9 @@ class operateurControlleur extends BaseController
     // Gain
     public function gains()
     {
+        if (! session()->get('operateur_logged_in')) {
+            return redirect()->to('/');
+        }
 
         $model = new GainModel();
 

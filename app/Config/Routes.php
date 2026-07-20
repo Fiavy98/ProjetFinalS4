@@ -17,6 +17,8 @@ $routes->get('/client/solde', 'ClientController::solde');
 $routes->get('/client/historique', 'ClientController::historique');
 
 $routes->get('/operateur', 'operateurControlleur::index');
+$routes->match(['get', 'post'], '/operateur/login', 'operateurControlleur::login');
+$routes->get('/operateur/logout', 'operateurControlleur::logout');
 $routes->get('/operateur/profil', 'operateurControlleur::profil');
 $routes->get('/operateur/operations', 'operateurControlleur::operations');
 $routes->get('/operateur/frais', 'operateurControlleur::frais');

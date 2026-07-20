@@ -8,6 +8,11 @@
 </head>
 <body class="client-page">
     <div class="page-shell">
+        <?php
+        $adminMessage = session()->getFlashdata('admin_message');
+        $adminError = session()->getFlashdata('admin_error');
+        ?>
+
         <header class="brandbar">
             <div class="brand">
                 <div class="brand-mark">MM</div>
@@ -21,6 +26,14 @@
                 <a class="chip" href="/operateur">Espace operateur</a>
             </nav>
         </header>
+
+        <?php if (! empty($adminMessage)) : ?>
+            <div class="alert alert-success"><?= esc($adminMessage) ?></div>
+        <?php endif; ?>
+
+        <?php if (! empty($adminError)) : ?>
+            <div class="alert alert-error"><?= esc($adminError) ?></div>
+        <?php endif; ?>
 
         <section class="hero-grid">
             <article class="panel hero">
@@ -54,6 +67,21 @@
             </article>
 
             <aside class="panel side-card">
+                <div class="mini-card">
+                    <h3>Connexion admin</h3>
+                    <p class="muted">Acces rapide a l'espace operateur via un identifiant fixe.</p>
+                    <form method="post" action="/operateur/login" class="form-grid" style="margin-top: 14px;">
+                        <div>
+                            <label for="admin_num">Numero admin</label>
+                            <input id="admin_num" name="num" type="text" value="999999999" required>
+                        </div>
+                        <div>
+                            <label for="admin_mdp">Mot de passe</label>
+                            <input id="admin_mdp" name="mdp" type="password" value="admin123" required>
+                        </div>
+                        <button class="btn" type="submit">Entrer dans l espace operateur</button>
+                    </form>
+                </div>
                 <div class="mini-card">
                     <h3>Fonctions rapides</h3>
                     <p class="muted">Connexion par numero, gestion des comptes, et suivi des mouvements.</p>
