@@ -24,7 +24,12 @@ class ClientController extends BaseController
 
     public function index()
     {
-        return redirect()->to('/client/login');
+        return $this->landing();
+    }
+
+    public function landing()
+    {
+        return view('clients/landing');
     }
 
     public function login()

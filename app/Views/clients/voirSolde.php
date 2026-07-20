@@ -4,19 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solde client</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f8fafc; margin: 0; padding: 0; }
-        .wrap { max-width: 700px; margin: 8vh auto; background: white; border-radius: 18px; padding: 28px; box-shadow: 0 12px 35px rgba(0,0,0,.08); }
-        .amount { font-size: 3rem; font-weight: 800; margin: 18px 0; color: #0f62fe; }
-        a { color: #0f62fe; text-decoration: none; font-weight: 700; }
-    </style>
+    <link rel="stylesheet" href="/assets/client.css">
 </head>
-<body>
-    <div class="wrap">
-        <h1>Solde de <?= esc($client['nom']) ?></h1>
-        <p>Numero: <?= esc($client['num']) ?></p>
-        <div class="amount"><?= number_format((float) $client['solde'], 2, ',', ' ') ?></div>
-        <a href="/client/operations">Retour aux operations</a>
+<body class="client-page">
+    <div class="balance-layout page-shell">
+        <section class="balance-card">
+            <div class="brand" style="margin-bottom: 16px;">
+                <div class="brand-mark">MM</div>
+                <div>
+                    <div>Solde client</div>
+                    <small class="muted">Consultation du compte</small>
+                </div>
+            </div>
+            <h1 class="page-title"><?= esc($client['nom']) ?></h1>
+            <p class="muted">Numero: <?= esc($client['num']) ?></p>
+            <div class="amount"><?= number_format((float) $client['solde'], 2, ',', ' ') ?></div>
+            <div class="hero-actions">
+                <a class="btn" href="/client/operations">Retour aux operations</a>
+                <a class="btn-secondary" href="/client/historique">Voir historique</a>
+            </div>
+        </section>
     </div>
 </body>
 </html>

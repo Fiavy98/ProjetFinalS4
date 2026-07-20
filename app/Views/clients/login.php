@@ -4,34 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion client</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f3f5f7; margin: 0; padding: 0; }
-        .wrap { max-width: 420px; margin: 8vh auto; background: white; padding: 28px; border-radius: 16px; box-shadow: 0 12px 30px rgba(0,0,0,.08); }
-        h1 { margin-top: 0; }
-        label { display:block; margin: 14px 0 6px; }
-        input { width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid #cfd6dd; border-radius: 10px; }
-        button { width: 100%; margin-top: 18px; padding: 12px; border: 0; border-radius: 10px; background: #0f62fe; color: white; font-weight: 700; cursor: pointer; }
-        .error { background: #fdecea; color: #b42318; padding: 12px; border-radius: 10px; margin-bottom: 14px; }
-    </style>
+    <link rel="stylesheet" href="/assets/client.css">
 </head>
-<body>
-    <div class="wrap">
-        <h1>Connexion client</h1>
-        <p>Entrez votre numero et votre mot de passe pour continuer.</p>
+<body class="client-page">
+    <div class="login-layout page-shell">
+        <section class="login-card">
+            <div class="brand" style="margin-bottom: 18px;">
+                <div class="brand-mark">MM</div>
+                <div>
+                    <div>Mobile Money</div>
+                    <small class="muted">Connexion client</small>
+                </div>
+            </div>
 
-        <?php if (! empty($error)) : ?>
-            <div class="error"><?= esc($error) ?></div>
-        <?php endif; ?>
+            <h1>Accedez à votre compte</h1>
+            <p class="muted">Entrez votre numero et votre mot de passe pour continuer.</p>
 
-        <form method="post" action="/client/login">
-            <label for="num">Numero</label>
-            <input id="num" name="num" type="text" value="<?= esc(old('num', $defaultNum ?? '')) ?>" required>
+            <?php if (! empty($error)) : ?>
+                <div class="alert alert-error"><?= esc($error) ?></div>
+            <?php endif; ?>
 
-            <label for="mdp">Mot de passe</label>
-            <input id="mdp" name="mdp" type="password" value="<?= esc(old('mdp', $defaultPassword ?? '')) ?>" required>
+            <form method="post" action="/client/login" class="form-grid">
+                <div>
+                    <label for="num">Numero</label>
+                    <input id="num" name="num" type="text" value="<?= esc(old('num', $defaultNum ?? '')) ?>" placeholder="0341234567" required>
+                </div>
 
-            <button type="submit">Se connecter</button>
-        </form>
+                <div>
+                    <label for="mdp">Mot de passe</label>
+                    <input id="mdp" name="mdp" type="password" value="<?= esc(old('mdp', $defaultPassword ?? '')) ?>" placeholder="1234" required>
+                </div>
+
+                <button class="btn" type="submit">Se connecter</button>
+            </form>
+
+            <p class="footer-note">Developpeurs: ETU003993 · ETU004373</p>
+        </section>
     </div>
 </body>
 </html>
