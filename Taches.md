@@ -35,6 +35,7 @@
     - client 
         - id
         - num
+        - mdp
         - nom
         - idOperation
         - solde 
@@ -89,3 +90,4 @@
                 - operations.php
                 - voirSolde.php
                 - historique.php
+
