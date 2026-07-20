@@ -1,0 +1,4 @@
+/writable/database/*.db
+/writable/database/*.db-shm
+/writable/database/*.db-wal
+/writable/database/*.db-journal
