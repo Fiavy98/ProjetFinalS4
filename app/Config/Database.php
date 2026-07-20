@@ -26,7 +26,7 @@ class Database extends Config
      */
     public array $default = [
         'DSN'          => '',
-        'hostname'     => 'localhost',
+        'hostname'     => '172.0.0.1',
         'username'     => '',
         'password'     => '',
         'database'     => WRITEPATH . 'database' . DIRECTORY_SEPARATOR . 'mobileMoney.db',

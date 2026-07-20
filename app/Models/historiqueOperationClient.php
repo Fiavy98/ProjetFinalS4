@@ -12,7 +12,7 @@ class historiqueOperationClient extends Model
     protected $allowedFields = [
         'idClient',
         'idOperation',
-        'dateheure',
+        'dateheure'
     ];
 
     protected $useTimestamps = false;
