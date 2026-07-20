@@ -47,6 +47,9 @@
 
 - Cote operateur
     - Tache1 : Configuration prefixe 
+        - le prefixe est deja stocker dans la base (table operateur)
+        - on ajoute un controlleur pour configurer et filtrer les prefixe du numero 
+            - au cas ou le client entre le numero invalide ou qui n'existe pas dans la base  
     - Tache2 : Types d'operations avec frais
         - depot : frais obliger
         - retrait : frais obliger
