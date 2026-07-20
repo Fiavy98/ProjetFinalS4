@@ -22,14 +22,52 @@
         - min
         - max
         - valeur
+    - gain
+        - id
+        - idOperateur
+        - idHistorique
+        - valeur
+    - historiqueGain
+        - id
+        - dateheure 
+        - idOperation
+        - valeur
     - client 
         - id
+        - num
         - nom
         - idOperation
         - solde 
-    - historique 
+    - historiqueOperationClient
         - id
         - idClient
         - idOperation 
         - dateheure 
 
+- Cote operateur
+    - Tache1 : Configuration prefixe 
+    - Tache2 : Types d'operations avec frais
+        - depot : frais obliger
+        - retrait : frais obliger
+        - transfert : frais au choix (0 ou ...)
+    - Tache3 : Situation gain
+        - isue via l'operation retrait et transfert 
+    - Tache4 : Situation de compte client 
+            - historique des 
+    - Fichier
+        - model 
+            - operateur
+            - typeOperation
+            - operation 
+            - gain
+            - historiqueGain
+            - frais 
+- cote client 
+    - Tache 
+    - fichier 
+        - model 
+            - client 
+            - historique
+        - controlleur
+            -  clientControlleur
+        - view 
