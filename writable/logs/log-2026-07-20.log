@@ -70,3 +70,13 @@ in APPPATH/Controllers/operateurControlleur.php on line 111.
  4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
  5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
  6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 12:32:29 --> ErrorException: Array to string conversion
+[Method: POST, Route: client/transfertMultiple]
+in APPPATH\Controllers\ClientController.php on line 317.
+ 1 APPPATH\Controllers\ClientController.php(317): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Array to string conversion', 'D:\\temps-sarobidy\\ProjetFinalS4\\app\\Controllers\\ClientController.php', 317)
+ 2 SYSTEMPATH\CodeIgniter.php(951): App\Controllers\ClientController->transfertMultiple()
+ 3 SYSTEMPATH\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ClientController))
+ 4 SYSTEMPATH\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))

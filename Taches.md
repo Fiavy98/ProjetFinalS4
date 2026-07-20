@@ -2,7 +2,7 @@
 
 # TODO LISTE
 
-## [ok] Base de donnees
+## [OK] Base de donnees
 
 ### Table operateur
 - id
@@ -283,3 +283,20 @@
     - [OK] operations.php
     - [OK] voirSolde.php
     - [OK] historique.php
+
+
+# Version 2
+
+## Côté client 
+
+- Frais
+ - [OK] Option inclure frais de retrait lors de l’envoi (déjà là)
+ - [OK] Affiché les frais à
+ - [OK] Notifié le client d'un transfert réussit
+
+- Envoi multiple vers plusieurs numéros ( divisé le montant pour chaque numéro)
+même opérateur uniquement
+ - [OK] ajout d'un nouveau formulaire multiple côté view client
+ - [OK] script js pour calcul dynamique au côté front-end 
+ - ClientController.php 
+  - [OK] modifier le controller pour envoyer à plusieurs autres clients en même temps 

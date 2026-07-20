@@ -71,11 +71,22 @@ CREATE TABLE historiqueOperationClient (
     FOREIGN KEY (idOperation) REFERENCES operation(id)
 );
 
+CREATE TABLE commissionAutreOperateur (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    idOperateur INTEGER NOT NULL,
+    idTypeOperation INTEGER NOT NULL,
+    pourcentage REAL NOT NULL,
+
+    FOREIGN KEY(idOperateur) REFERENCES operateur(id),
+    FOREIGN KEY(idTypeOperation) REFERENCES typeOperation(id)
+);
+
+
 -- Table operateur
 INSERT INTO operateur (nom, prefixes) VALUES
-('Telma Money', '034,038'),
-('MVola', '032,033'),
-('Orange Money', '037,039');
+('MVola', '034,038'),
+('Airtel Money', '033'),
+('Orange Money', '037,032');
 
 
 -- Table typeOperation
@@ -109,6 +120,8 @@ INSERT INTO frais (idTypeOperation, min, max, valeur) VALUES
 -- Table client
 INSERT INTO client (num, mdp, nom, solde) VALUES
 ('0341234567', '1234', 'Rakoto Jean', 50000),
+('0341234568', '1234', 'Rakoto Jean Deux', 50000),
+('0341234569', '1234', 'Rakoto Jean Trois', 50000),
 ('0339876543', '5678', 'Rabe Marie', 100000),
 ('0371122334', 'abcd', 'Andry Paul', 75000),
 ('0325566778', '0000', 'Soa Julie', 20000);
