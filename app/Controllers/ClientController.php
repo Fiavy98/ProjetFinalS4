@@ -30,8 +30,9 @@ class ClientController extends BaseController
     public function login()
     {
         helper(['form', 'url']);
+        $defaults = $this->loginDefaults();
 
-            if ($this->request->is('post')) {
+        if ($this->request->is('post')) {
             $num = trim((string) $this->request->getPost('num'));
             $mdp = trim((string) $this->request->getPost('mdp'));
 
@@ -45,10 +46,12 @@ class ClientController extends BaseController
 
             return view('clients/login', [
                 'error' => 'Numero ou mot de passe invalide.',
+                'defaultNum' => $num !== '' ? $num : $defaults['defaultNum'],
+                'defaultPassword' => $mdp !== '' ? $mdp : $defaults['defaultPassword'],
             ]);
         }
 
-        return view('clients/login');
+        return view('clients/login', $defaults);
     }
 
     public function logout()
@@ -258,6 +261,16 @@ class ClientController extends BaseController
         }
 
         return (int) $this->typeOperationModel->insert(['libele' => $label], true);
+    }
+
+    private function loginDefaults(): array
+    {
+        $client = $this->clientModel->orderBy('id', 'ASC')->first();
+
+        return [
+            'defaultNum' => $client['num'] ?? '',
+            'defaultPassword' => $client['mdp'] ?? '',
+        ];
     }
 
     private function getTypeMap(): array

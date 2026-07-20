@@ -10,41 +10,38 @@ class InitialDataSeeder extends Seeder
     {
         $db = $this->db;
 
-        if ($db->table('typeOperation')->countAllResults() === 0) {
-            $db->table('typeOperation')->insertBatch([
-                ['libele' => 'depot'],
-                ['libele' => 'retrait'],
-                ['libele' => 'transfert'],
-            ]);
+        $baseSql = ROOTPATH . 'base.sql';
+        if (! is_file($baseSql)) {
+            throw new \RuntimeException('base.sql introuvable pour le seed initial.');
         }
 
-        if ($db->table('frais')->countAllResults() === 0) {
-            $type = $db->table('typeOperation')->where('libele', 'transfert')->get()->getFirstRow('array');
-            if ($type) {
-                $db->table('frais')->insert([
-                    'idTypeOperation' => $type['id'],
-                    'min' => 0,
-                    'max' => 999999999,
-                    'valeur' => 500,
-                ]);
+        $db->transStart();
+
+        $db->query('DELETE FROM historiqueOperationClient');
+        $db->query('DELETE FROM gain');
+        $db->query('DELETE FROM historiqueGain');
+        $db->query('DELETE FROM operation');
+        $db->query('DELETE FROM frais');
+        $db->query('DELETE FROM client');
+        $db->query('DELETE FROM typeOperation');
+        $db->query('DELETE FROM operateur');
+        $db->query('DELETE FROM sqlite_sequence');
+
+        $sql = file_get_contents($baseSql);
+        $sql = preg_replace('/^\s*--.*$/m', '', $sql) ?? $sql;
+        $statements = preg_split('/;\s*(?:\R|$)/', $sql) ?: [];
+
+        foreach ($statements as $statement) {
+            $statement = trim($statement);
+
+            if ($statement === '' || ! preg_match('/^INSERT\s+INTO\s+/i', $statement)) {
+                continue;
             }
+
+            $db->query($statement);
         }
 
-        if ($db->table('client')->countAllResults() === 0) {
-            $db->table('client')->insertBatch([
-                [
-                    'num' => '770000001',
-                    'mdp' => '1234',
-                    'nom' => 'Client Demo 1',
-                    'solde' => 100000,
-                ],
-                [
-                    'num' => '770000002',
-                    'mdp' => '1234',
-                    'nom' => 'Client Demo 2',
-                    'solde' => 50000,
-                ],
-            ]);
-        }
+        $db->transComplete();
+
     }
 }

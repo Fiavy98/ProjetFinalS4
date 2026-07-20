@@ -25,10 +25,10 @@
 
         <form method="post" action="/client/login">
             <label for="num">Numero</label>
-            <input id="num" name="num" type="text" required>
+            <input id="num" name="num" type="text" value="<?= esc(old('num', $defaultNum ?? '')) ?>" required>
 
             <label for="mdp">Mot de passe</label>
-            <input id="mdp" name="mdp" type="password" required>
+            <input id="mdp" name="mdp" type="password" value="<?= esc(old('mdp', $defaultPassword ?? '')) ?>" required>
 
             <button type="submit">Se connecter</button>
         </form>
