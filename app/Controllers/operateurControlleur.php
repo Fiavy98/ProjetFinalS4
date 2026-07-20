@@ -37,20 +37,47 @@ class operateurControlleur extends BaseController
     public function calculerFrais($idTypeOperation, $montant, $avecFrais = true)
     {
         $fraisModel = new \App\Models\frais();
-    
+
         // Transfert sans frais
         if ($idTypeOperation == 3 && !$avecFrais) {
             return null;
         }
-    
+
         $frais = $fraisModel
             ->where('idTypeOperation', $idTypeOperation)
             ->where('min <=', $montant)
             ->where('max >=', $montant)
             ->first();
-    
+
         return $frais;
     }
 
+    public function verifierCompte($idClient, $montant)
+    {
+        $clientModel = new \App\Models\client();
+    
+        $client = $clientModel->find($idClient);
+    
+    
+        if(!$client){
+            return [
+                'success'=>false,
+                'message'=>'Client inconnu'
+            ];
+        }
+    
+    
+        if($client['solde'] < $montant){
+            return [
+                'success'=>false,
+                'message'=>'Solde insuffisant'
+            ];
+        }
+    
+    
+        return [
+            'success'=>true
+        ];
+    }
 
 }
