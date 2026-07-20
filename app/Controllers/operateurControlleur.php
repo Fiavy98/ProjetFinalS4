@@ -79,5 +79,92 @@ class operateurControlleur extends BaseController
             'success'=>true
         ];
     }
+    public function index()
+    {
+        return view('operateur/index');
+    }
+
+    // Profil opérateur
+
+    public function profil()
+    {
+
+        $model = new operateur();
+
+
+        $data=[
+            'operateur'=>$model->first()
+        ];
+
+
+        return view(
+            'operateur/profil',
+            $data
+        );
+
+    }
+
+    // Toutes les opérations
+    public function operations()
+    {
+
+        $model=new operation();
+
+
+        $data=[
+            'operations'=>$model->listeOperations()
+        ];
+
+
+        return view(
+            'operateur/operations',
+            $data
+        );
+
+    }
+
+
+
+
+
+    // Affichage frais
+
+    public function frais()
+    {
+
+        $model=new frais();
+
+
+        $data=[
+            'frais'=>$model->listeFrais()
+        ];
+
+
+        return view(
+            'operateur/frais',
+            $data
+        );
+
+    }
+
+    // Gain
+    public function gains()
+    {
+
+        $model=new gain();
+
+
+        $data=[
+            'gains'=>$model->historiqueGain()
+        ];
+
+
+        return view(
+            'operateur/gains',
+            $data
+        );
+
+    }
+
 
 }

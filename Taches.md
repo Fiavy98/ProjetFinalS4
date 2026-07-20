@@ -123,7 +123,6 @@
 - cote client 
     - Tache 1 : Login 
         - numero tel
-        - mdp
     - Tache 2 : Operation 
         - Liste deroulante
             - faire un depot 
