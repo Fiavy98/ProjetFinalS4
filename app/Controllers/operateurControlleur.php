@@ -2,17 +2,17 @@
 
 namespace App\Controllers;
 
-use App\Models\client;
-use App\Models\frais;
-use App\Models\gain;
-use App\Models\operateur;
-use App\Models\operation;
+use App\Models\client as ClientModel;
+use App\Models\frais as FraisModel;
+use App\Models\gain as GainModel;
+use App\Models\operateur as OperateurModel;
+use App\Models\operation as OperationModel;
 
 class operateurControlleur extends BaseController
 {
     public function verifierPrefixe($numero)
     {
-        $operateurModel = new operateur();
+        $operateurModel = new OperateurModel();
 
         // Récupérer les opérateurs
         $operateurs = $operateurModel->findAll();
@@ -42,7 +42,7 @@ class operateurControlleur extends BaseController
 
     public function calculerFrais($idTypeOperation, $montant, $avecFrais = true)
     {
-        $fraisModel = new frais();
+        $fraisModel = new FraisModel();
 
         // Transfert sans frais
         if ($idTypeOperation == 3 && !$avecFrais) {
@@ -60,7 +60,7 @@ class operateurControlleur extends BaseController
 
     public function verifierCompte($idClient, $montant)
     {
-        $clientModel = new client();
+        $clientModel = new ClientModel();
     
         $client = $clientModel->find($idClient);
     
@@ -95,7 +95,7 @@ class operateurControlleur extends BaseController
     public function profil()
     {
 
-        $model = new operateur();
+        $model = new OperateurModel();
 
 
         $data=[
@@ -114,7 +114,7 @@ class operateurControlleur extends BaseController
     public function operations()
     {
 
-        $model=new operation();
+        $model = new OperationModel();
 
 
         $data=[
@@ -138,7 +138,7 @@ class operateurControlleur extends BaseController
     public function frais()
     {
 
-        $model = new frais();
+        $model = new FraisModel();
 
 
         $data=[
@@ -157,7 +157,7 @@ class operateurControlleur extends BaseController
     public function gains()
     {
 
-        $model = new gain();
+        $model = new GainModel();
 
 
         $data=[

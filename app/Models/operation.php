@@ -15,7 +15,8 @@ class operation extends Model
         'idClient',
         'valeur',
         'idFrais',
-        'description'
+        'description',
+        'dateheure'
     ];
 
     protected $useTimestamps = false;
