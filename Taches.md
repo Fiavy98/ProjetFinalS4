@@ -22,14 +22,124 @@
         - min
         - max
         - valeur
+    - gain
+        - id
+        - idOperateur
+        - idHistorique
+        - valeur
+    - historiqueGain
+        - id
+        - dateheure 
+        - idOperation
+        - valeur
     - client 
         - id
+        - num
+        - mdp
         - nom
         - idOperation
         - solde 
-    - historique 
+    - historiqueOperationClient
         - id
         - idClient
         - idOperation 
         - dateheure 
+
+- Cote operateur
+    - Tache1 : Configuration prefixe 
+        - Recuperer les prefixes depuis la table `operateur`
+        - Separer les differents prefixes stockes (exemple : `034,038` devient `034` et `038`)
+        - Nettoyer le numero entre (supprimer les espaces ou caracteres inutiles)
+        - Verifier si le numero commence par l'un des prefixes configures
+        - Si le prefixe existe :
+            - Retourner l'operateur correspondant
+        - Sinon :
+            - Retourner une erreur : numero invalide ou operateur inconnu
+    - Tache2 : Types d'operations avec frais
+        - depot : frais obliger
+            - Recevoir une demande de depot du client
+            - Identifier le type d'operation : `Depot`
+            - Rechercher le frais correspondant dans la table `frais`
+            - Trouver la tranche de montant correspondante (`min` et `max`)
+            - Appliquer obligatoirement le frais
+            - Enregistrer l'operation avec son `idFrais`   
+        - retrait : frais obliger
+            - Recevoir une demande de retrait du client
+            - Verifier que le solde du client est suffisant
+            - Identifier le type d'operation : `Retrait`
+            - Rechercher le frais correspondant au montant
+            - Appliquer obligatoirement le frais
+            - Enregistrer l'operation avec son `idFrais`
+        - transfert : frais au choix (0 ou avec frais)
+            - Recevoir une demande de transfert du client
+            - Verifier le choix du client :
+              - transfert avec frais ;
+              - transfert sans frais
+            - Si transfert avec frais :
+              - Rechercher le frais correspondant
+              - Enregistrer l'operation avec `idFrais`
+            - Si transfert sans frais :
+              - Ne pas appliquer de frais
+              - Enregistrer l'operation avec `idFrais = NULL`
+    - Tache3 : Situation gain
+        - Apres chaque operation terminee :
+          - Verifier le type d'operation
+        - Si l'operation est :
+          - Retrait 
+          - Transfert 
+          alors continuer le calcul du gain
+        - Recuperer le frais applique à l'operation
+       - Creer un historique dans la table `historiqueGain`
+       - Enregistrer le gain de l'operateur dans la table `gain`
+       - Ignorer les operations de depôt (pas de gain operateur)
+    - Tache4 : Situation de compte client et notification
+       - Verification du numero client
+            - Rechercher le client dans la table `client`
+            - Si le numero n'existe pas :
+              - Refuser l'operation
+              - Retourner une notification : "Numero inconnu"  
+       - Verification du solde
+            - Recuperer le solde actuel du client
+            - Comparer le solde avec le montant de l'operation + frais eventuels
+            - Si le solde est insuffisant :
+              - Refuser l'operation
+              - Retourner une notification : "Solde insuffisant"
+       - Validation finale
+        - Si toutes les verifications sont correctes :
+          - Autoriser l'operation
+          - Mettre à jour le solde du client
+          - Enregistrer l'operation dans la table `operation`
+          - Ajouter l'historique de l'operation
+    - Fichier
+        - model 
+            - operateurphp
+            - typeOperationphp
+            - operationphp 
+            - gainphp
+            - historiqueGainphp
+            - fraisphp 
+        - Controlleur
+            - operateurControlleurphp 
+- cote client 
+    - Tache 1 : Login 
+        - numero tel
+    - Tache 2 : Operation 
+        - Liste deroulante
+            - faire un depot 
+            - faire un retrait 
+            - un transfert (choix avec ou sans frais)
+    - Tache 3 : Voir solde 
+    - Tache 4 : voir historique  
+    - fichier 
+        - model 
+            - clientphp 
+            - historiquephp
+        - controlleur
+            -  clientControlleurphp
+        - view 
+            - login 
+            - clients/
+                - operationsphp
+                - voirSoldephp
+                - historiquephp
 

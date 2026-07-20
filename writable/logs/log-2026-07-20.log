@@ -1,0 +1,72 @@
+CRITICAL - 2026-07-20 08:42:10 --> Error: Class "App\Controllers\operateur" not found
+[Method: GET, Route: operateur/profil]
+in APPPATH/Controllers/operateurControlleur.php on line 92.
+ 1 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\operateurControlleur->profil()
+ 2 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 08:42:12 --> Error: Class "App\Controllers\operation" not found
+[Method: GET, Route: operateur/operations]
+in APPPATH/Controllers/operateurControlleur.php on line 111.
+ 1 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\operateurControlleur->operations()
+ 2 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 08:42:15 --> Error: Class "App\Controllers\frais" not found
+[Method: GET, Route: operateur/frais]
+in APPPATH/Controllers/operateurControlleur.php on line 135.
+ 1 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\operateurControlleur->frais()
+ 2 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 08:42:18 --> Error: Class "App\Controllers\gain" not found
+[Method: GET, Route: operateur/gains]
+in APPPATH/Controllers/operateurControlleur.php on line 154.
+ 1 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\operateurControlleur->gains()
+ 2 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 08:44:03 --> Error: Class "App\Controllers\operateur" not found
+[Method: GET, Route: operateur/profil]
+in APPPATH/Controllers/operateurControlleur.php on line 92.
+ 1 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\operateurControlleur->profil()
+ 2 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 08:44:05 --> Error: Class "App\Controllers\operation" not found
+[Method: GET, Route: operateur/operations]
+in APPPATH/Controllers/operateurControlleur.php on line 111.
+ 1 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\operateurControlleur->operations()
+ 2 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 08:44:29 --> Error: Class "App\Controllers\operateur" not found
+[Method: GET, Route: operateur/profil]
+in APPPATH/Controllers/operateurControlleur.php on line 92.
+ 1 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\operateurControlleur->profil()
+ 2 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2026-07-20 08:44:54 --> Error: Class "App\Controllers\operation" not found
+[Method: GET, Route: operateur/operations]
+in APPPATH/Controllers/operateurControlleur.php on line 111.
+ 1 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\operateurControlleur->operations()
+ 2 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
