@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title>YAS</title>
+  <defs>
+    <linearGradient id="g" x1="18" y1="12" x2="112" y2="116" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff04a"/>
+      <stop offset="1" stop-color="#ffd400"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="34" fill="url(#g)"/>
+  <path d="M25 35h17l13 23 13-23h17L63 73v20H47V73L25 35Z" fill="#111111"/>
+  <path d="M84 34h20v15H84z" fill="#111111"/>
+  <path d="M84 57h17c3 0 5 2 5 5s-2 5-5 5H84zM84 72h20v16H84z" fill="#111111"/>
+</svg>
