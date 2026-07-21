@@ -66,6 +66,7 @@
                     <div>
                         <label for="dest_num">Numero destinataire</label>
                         <input id="dest_num" name="dest_num" type="text" placeholder="0339876543" required>
+                        <input type="hidden" name="client_num" id="client_num" value=<?= $client['num']?>>
                     </div>
 
                     <div>

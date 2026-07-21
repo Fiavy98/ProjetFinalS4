@@ -22,6 +22,7 @@ class ClientController extends BaseController
     protected frais $feeModel;
     protected typeOperation $typeOperationModel;
     protected operateur $operatorModel;
+    protected operateur $promotion;
     protected commissionAutreOperateur $commissionModel;
 
     public function __construct()
@@ -73,16 +74,17 @@ class ClientController extends BaseController
         if (! $sender) return redirect()->to('/client/login');
         if (! $this->request->is('post')) return redirect()->to('/client/operations');
         $amount = $this->postedAmount();
+        $clientNum = trim((string) $this->request->getPost('client_num'));
         $destNum = trim((string) $this->request->getPost('dest_num'));
         $withFee = $this->includesFee();
         if ($amount === null) return $this->redirectWithError('Le montant du transfert doit être positif et valide.');
         if ($destNum === $sender['num']) return $this->redirectWithError('Un transfert vers votre propre numéro est impossible.');
         $destination = $this->clientModel->where('num', $destNum)->first();
+        $envoie = $this->clientModel->where('num', $clientNum)->first();
         if (! $destination) return $this->redirectWithError('Le compte destination est introuvable.');
         $sourceOperator = $this->operatorForNumber($sender['num']);
         $destinationOperator = $this->operatorForNumber($destNum);
         if (! $sourceOperator || ! $destinationOperator) return $this->redirectWithError('Le préfixe de l’un des numéros est inconnu.');
-
         $typeId = $this->ensureTypeOperation('transfert');
         $fee = $this->feeFor($typeId, $amount);
         $normalFee = (float) ($fee['valeur'] ?? 0);
@@ -95,6 +97,13 @@ class ClientController extends BaseController
         $db = db_connect(); $db->transStart();
         $freshSender = $this->clientModel->find($sender['id']);
         if ((float) $freshSender['solde'] < $debit) { $db->transRollback(); return $this->redirectWithError('Solde insuffisant pour effectuer le transfert, frais et commission inclus.'); }
+        if($sourceOperator == $destinationOperator)
+        {
+            $promo = $this->promotion->where('idOperateur',$destinationOperator)->first();
+            $vpromo = $this->promotion->getval($promo);
+            $normalFee = $normalFee - $normalFee*$vpromo;
+
+        }
         $operationId = $this->createTransferOperation($freshSender, $destination, $typeId, $fee['id'] ?? null, $received, (int) $sourceOperator['id'], (int) $destinationOperator['id'], $commission, $withFee, false);
         $this->clientModel->update($sender['id'], ['solde' => round((float) $freshSender['solde'] - $debit, 2)]);
         $freshDestination = $this->clientModel->find($destination['id']);

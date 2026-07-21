@@ -181,3 +181,13 @@ VALUES
 (1,1),
 (2,2),
 (3,3);
+
+
+CREATE TABLE promotion (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    idOperateur int,
+    valeur float,
+    FOREIGN KEY(idOperateur) REFERENCES operateur(id)
+);
+
+insert into promotion(idOperateur, valeur) Values(1,20);
