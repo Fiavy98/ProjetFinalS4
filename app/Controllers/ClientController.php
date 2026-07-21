@@ -101,7 +101,7 @@ class ClientController extends BaseController
         {
             $promo = $this->promotion->where('idOperateur',$destinationOperator)->first();
             $vpromo = $this->promotion->getval($promo);
-            $normalFee = $normalFee - $normalFee*$vpromo;
+            $normalFee = $normalFee - $normalFee*$vpromo/100;
 
         }
         $operationId = $this->createTransferOperation($freshSender, $destination, $typeId, $fee['id'] ?? null, $received, (int) $sourceOperator['id'], (int) $destinationOperator['id'], $commission, $withFee, false);
