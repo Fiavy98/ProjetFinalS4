@@ -55,7 +55,7 @@ class ClientController extends BaseController
         return view('clients/login', ['error' => 'Numero ou mot de passe invalide.', 'defaultNum' => $num ?: $defaults['defaultNum'], 'defaultPassword' => $mdp ?: $defaults['defaultPassword']]);
     }
 
-    public function logout() { session()->destroy(); return redirect()->to('/client/login'); }
+    public function logout() { session()->destroy(); return redirect()->to('/'); }
 
     public function operations()
     {

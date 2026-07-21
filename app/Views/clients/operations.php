@@ -22,7 +22,7 @@
             <nav class="nav-links">
                 <a class="chip" href="/client/solde">Voir solde</a>
                 <a class="chip" href="/client/historique">Historique</a>
-                <a class="chip" href="/client/logout">Deconnexion</a>
+                <a class="chip" href="/client/logout">Se déconnecter</a>
             </nav>
         </header>
 

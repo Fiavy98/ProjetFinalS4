@@ -20,6 +20,7 @@
             <div class="hero-actions" style="margin-top: 0; margin-bottom: 8px;">
                 <a class="btn" href="/client/operations">Retour aux operations</a>
                 <a class="btn-secondary" href="/client/solde">Voir solde</a>
+                <a class="btn-ghost" href="/client/logout">Se déconnecter</a>
             </div>
 
             <div class="table-wrap">
