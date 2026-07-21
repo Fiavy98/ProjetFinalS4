@@ -286,22 +286,7 @@
 
 
 # Version 2
-
-## Côté client 
-
-- Frais
- - [OK] Option inclure frais de retrait lors de l’envoi
- - [OK] Affiché les frais à
- - [OK] Notifié le client d'un transfert réussit
-
-- Envoi multiple vers plusieurs numéros ( divisé le montant pour chaque numéro)
-même opérateur uniquement
- - [OK] ajout d'un nouveau formulaire multiple côté view client
- - [OK] script js pour calcul dynamique au côté front-end 
- - ClientController.php 
-  - [OK] modifier le controller pour envoyer à plusieurs autres clients en même temps 
-
-
+gitnz
   ## Tache 1 : Configuration des prefixes valable pour les autre operateurs 
 - ajoute les autre operateur dans base de donnes (Table operateurs)
 
