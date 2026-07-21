@@ -403,6 +403,7 @@ gitnz
 - [ok] Verifier que les montants correspondent aux operations enregistrees
 - [ok] Verifier que les calculs sont corrects
 ---
+<<<<<<< HEAD
 Rédiger
 
 
@@ -414,3 +415,5 @@ Etape 1, créer la table promotion
 Etape 2, regles de gestion, pour les même opérateurs, reduction pris en compte dans le controller Clientcontroller
 - Nouveau modèle, promotion
 - Modification de la fonction transfer() , ClientController
+=======
+>>>>>>> 1ae1bb58f3de58ab89dda8ba34e76db76db6f112
