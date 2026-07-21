@@ -26,3 +26,5 @@ $pageDescription = $pageDescription ?? 'Pilotez les activités de votre opérate
                 <a href="/operateur/gains" <?= $currentPage === 'gains' ? 'aria-current="page"' : '' ?>>Gains</a>
             </nav>
         </header>
+        <?php if (session()->getFlashdata('frais_success')): ?><p class="yas-alert yas-alert-success"><?= esc(session()->getFlashdata('frais_success')) ?></p><?php endif; ?>
+        <?php if (session()->getFlashdata('frais_error')): ?><p class="yas-alert yas-alert-error"><?= esc(session()->getFlashdata('frais_error')) ?></p><?php endif; ?>

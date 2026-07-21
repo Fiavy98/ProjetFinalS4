@@ -49,4 +49,11 @@ class gain extends Model
 
     }
 
+    public function totalGains(): float
+    {
+        $result = $this->selectSum('valeur', 'total')->first();
+
+        return (float) ($result['total'] ?? 0);
+    }
+
 }

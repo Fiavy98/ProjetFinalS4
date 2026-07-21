@@ -7,6 +7,7 @@ use App\Models\frais as FraisModel;
 use App\Models\gain as GainModel;
 use App\Models\operateur as OperateurModel;
 use App\Models\operation as OperationModel;
+use App\Models\typeOperation as TypeOperationModel;
 
 class operateurControlleur extends BaseController
 {
@@ -183,7 +184,8 @@ class operateurControlleur extends BaseController
 
 
         $data=[
-            'frais'=>$model->listeFrais()
+            'frais'=>$model->listeFrais(),
+            'typesOperation'=>(new TypeOperationModel())->findAll(),
         ];
 
 
@@ -192,6 +194,95 @@ class operateurControlleur extends BaseController
             $data
         );
 
+    }
+
+    public function creerFrais()
+    {
+        if (! session()->get('operateur_logged_in')) {
+            return redirect()->to('/');
+        }
+
+        $donnees = $this->donneesFrais();
+        if ($donnees === null) {
+            return redirect()->to('/operateur/frais')->with('frais_error', 'Veuillez renseigner des montants valides : le minimum ne peut pas dépasser le maximum.');
+        }
+
+        (new FraisModel())->insert($donnees);
+        return redirect()->to('/operateur/frais')->with('frais_success', 'La tranche de frais a été ajoutée.');
+    }
+
+    public function modifierFrais($id)
+    {
+        if (! session()->get('operateur_logged_in')) {
+            return redirect()->to('/');
+        }
+
+        $frais = (new FraisModel())->find($id);
+        if (! $frais) {
+            return redirect()->to('/operateur/frais')->with('frais_error', 'Cette tranche de frais est introuvable.');
+        }
+
+        return view('operateur/frais_formulaire', [
+            'frais' => $frais,
+            'typesOperation' => (new TypeOperationModel())->findAll(),
+        ]);
+    }
+
+    public function mettreAJourFrais($id)
+    {
+        if (! session()->get('operateur_logged_in')) {
+            return redirect()->to('/');
+        }
+
+        $model = new FraisModel();
+        if (! $model->find($id)) {
+            return redirect()->to('/operateur/frais')->with('frais_error', 'Cette tranche de frais est introuvable.');
+        }
+
+        $donnees = $this->donneesFrais();
+        if ($donnees === null) {
+            return redirect()->to('/operateur/frais/' . $id . '/modifier')->with('frais_error', 'Veuillez renseigner des montants valides : le minimum ne peut pas dépasser le maximum.');
+        }
+
+        $model->update($id, $donnees);
+        return redirect()->to('/operateur/frais')->with('frais_success', 'La tranche de frais a été modifiée.');
+    }
+
+    public function supprimerFrais($id)
+    {
+        if (! session()->get('operateur_logged_in')) {
+            return redirect()->to('/');
+        }
+
+        $model = new FraisModel();
+        if (! $model->find($id)) {
+            return redirect()->to('/operateur/frais')->with('frais_error', 'Cette tranche de frais est introuvable.');
+        }
+
+        if ((new OperationModel())->where('idFrais', $id)->first()) {
+            return redirect()->to('/operateur/frais')->with('frais_error', 'Cette tranche est déjà utilisée par une opération et ne peut pas être supprimée.');
+        }
+
+        $model->delete($id);
+        return redirect()->to('/operateur/frais')->with('frais_success', 'La tranche de frais a été supprimée.');
+    }
+
+    private function donneesFrais(): ?array
+    {
+        $type = filter_var($this->request->getPost('idTypeOperation'), FILTER_VALIDATE_INT);
+        $min = filter_var($this->request->getPost('min'), FILTER_VALIDATE_FLOAT);
+        $max = filter_var($this->request->getPost('max'), FILTER_VALIDATE_FLOAT);
+        $valeur = filter_var($this->request->getPost('valeur'), FILTER_VALIDATE_FLOAT);
+
+        if ($type === false || $type < 1 || $min === false || $max === false || $valeur === false || $min < 0 || $max < $min || $valeur < 0) {
+            return null;
+        }
+
+        if (! (new TypeOperationModel())->find($type)) {
+            return null;
+        }
+
+        return ['idTypeOperation' => $type, 'min' => $min, 'max' => $max, 'valeur' => $valeur];
     }
 
     // Gain
@@ -205,7 +296,8 @@ class operateurControlleur extends BaseController
 
 
         $data=[
-            'gains'=>$model->historiqueGain()
+            'gains'=>$model->historiqueGain(),
+            'totalGains'=>$model->totalGains(),
         ];
 
 

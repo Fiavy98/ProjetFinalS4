@@ -23,4 +23,8 @@ $routes->get('/operateur/logout', 'operateurControlleur::logout');
 $routes->get('/operateur/profil', 'operateurControlleur::profil');
 $routes->get('/operateur/operations', 'operateurControlleur::operations');
 $routes->get('/operateur/frais', 'operateurControlleur::frais');
+$routes->post('/operateur/frais', 'operateurControlleur::creerFrais');
+$routes->get('/operateur/frais/(:num)/modifier', 'operateurControlleur::modifierFrais/$1');
+$routes->post('/operateur/frais/(:num)/modifier', 'operateurControlleur::mettreAJourFrais/$1');
+$routes->post('/operateur/frais/(:num)/supprimer', 'operateurControlleur::supprimerFrais/$1');
 $routes->get('/operateur/gains', 'operateurControlleur::gains');
