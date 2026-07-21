@@ -23,7 +23,7 @@ class operateurControlleur extends BaseController
             $mdp = trim((string) $this->request->getPost('mdp'));
 
             if ($numero === self::ADMIN_NUM && $mdp === self::ADMIN_PASSWORD) {
-                session()->set('operateur_logged_in', true);
+                session()->set(['operateur_logged_in' => true, 'operateur_id' => 1]);
                 return redirect()->to('/operateur');
             }
 
@@ -35,7 +35,7 @@ class operateurControlleur extends BaseController
 
     public function logout()
     {
-        session()->remove('operateur_logged_in');
+        session()->remove(['operateur_logged_in', 'operateur_id']);
         return redirect()->to('/')->with('admin_message', 'Deconnexion operateur effectuee.');
     }
 
@@ -135,7 +135,7 @@ class operateurControlleur extends BaseController
 
 
         $data=[
-            'operateur'=>$model->first()
+            'operateur'=>$model->find($this->operateurCourantId())
         ];
 
 
@@ -157,7 +157,7 @@ class operateurControlleur extends BaseController
 
 
         $data=[
-            'operations'=>$model->listeOperations()
+            'operations'=>$model->listeOperations($this->operateurCourantId())
         ];
 
 
@@ -239,7 +239,7 @@ class operateurControlleur extends BaseController
             return redirect()->to('/operateur/frais')->with('frais_error', 'Cette tranche de frais est introuvable.');
         }
 
-        $donnees = $this->donneesFrais();
+        $donnees = $this->donneesFrais((int) $id);
         if ($donnees === null) {
             return redirect()->to('/operateur/frais/' . $id . '/modifier')->with('frais_error', 'Veuillez renseigner des montants valides : le minimum ne peut pas dépasser le maximum.');
         }
@@ -267,7 +267,7 @@ class operateurControlleur extends BaseController
         return redirect()->to('/operateur/frais')->with('frais_success', 'La tranche de frais a été supprimée.');
     }
 
-    private function donneesFrais(): ?array
+    private function donneesFrais(?int $fraisIgnore = null): ?array
     {
         $type = filter_var($this->request->getPost('idTypeOperation'), FILTER_VALIDATE_INT);
         $min = filter_var($this->request->getPost('min'), FILTER_VALIDATE_FLOAT);
@@ -279,6 +279,17 @@ class operateurControlleur extends BaseController
         }
 
         if (! (new TypeOperationModel())->find($type)) {
+            return null;
+        }
+
+        $query = (new FraisModel())
+            ->where('idTypeOperation', $type)
+            ->where('min <=', $max)
+            ->where('max >=', $min);
+        if ($fraisIgnore !== null) {
+            $query->where('id !=', $fraisIgnore);
+        }
+        if ($query->first()) {
             return null;
         }
 
@@ -296,8 +307,10 @@ class operateurControlleur extends BaseController
 
 
         $data=[
-            'gains'=>$model->historiqueGain(),
-            'totalGains'=>$model->totalGains(),
+            'gains'=>$model->historiqueGain($this->operateurCourantId()),
+            'totalGains'=>$model->totalGains($this->operateurCourantId()),
+            'commissions'=>$model->commissionsAutresOperateurs($this->operateurCourantId()),
+            'totauxCommissions'=>$model->totauxCommissionsAutresOperateurs($this->operateurCourantId()),
         ];
 
 
@@ -306,6 +319,22 @@ class operateurControlleur extends BaseController
             $data
         );
 
+    }
+
+    public function montantsAEnvoyer()
+    {
+        if (! session()->get('operateur_logged_in')) {
+            return redirect()->to('/');
+        }
+
+        $montants = (new OperationModel())->montantsExternesParOperateur($this->operateurCourantId());
+        $totalGeneral = array_sum(array_map(static fn ($montant) => (float) $montant['montant_total'], $montants));
+        return view('operateur/montants_a_envoyer', compact('montants', 'totalGeneral'));
+    }
+
+    private function operateurCourantId(): int
+    {
+        return (int) (session()->get('operateur_id') ?? 1);
     }
 
 

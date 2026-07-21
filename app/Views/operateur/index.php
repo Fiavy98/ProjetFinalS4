@@ -11,6 +11,7 @@
     <article class="yas-card"><h2>Opérations</h2><p>Consultez l’ensemble des transactions réalisées par les clients.</p><a href="/operateur/operations">Voir les opérations →</a></article>
     <article class="yas-card"><h2>Grille des frais</h2><p>Retrouvez les seuils et les frais appliqués à chaque opération.</p><a href="/operateur/frais">Gérer les frais →</a></article>
     <article class="yas-card"><h2>Historique des gains</h2><p>Suivez les gains enregistrés par type d’opération et par date.</p><a href="/operateur/gains">Voir les gains →</a></article>
+    <article class="yas-card"><h2>Montants à envoyer</h2><p>Consultez les transferts externes à régler par opérateur.</p><a href="/operateur/montants-a-envoyer">Voir la situation →</a></article>
 </section>
 
 <?php require __DIR__ . '/_footer.php'; ?>

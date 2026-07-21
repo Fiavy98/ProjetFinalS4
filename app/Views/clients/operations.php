@@ -9,6 +9,8 @@
 <body class="client-page">
     <div class="page-shell">
         <?php $feeRulesJson = json_encode($feeRules ?? [], JSON_UNESCAPED_UNICODE); ?>
+        <?php $operatorsJson = json_encode($operators ?? [], JSON_UNESCAPED_UNICODE); ?>
+        <?php $commissionRulesJson = json_encode($commissionRules ?? [], JSON_UNESCAPED_UNICODE); ?>
         <header class="brandbar">
             <div class="brand">
                 <div class="brand-mark">MM</div>
@@ -136,6 +138,9 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const feeRules = <?= $feeRulesJson ?: '[]' ?>;
+            const operators = <?= $operatorsJson ?: '[]' ?>;
+            const commissionRules = <?= $commissionRulesJson ?: '[]' ?>;
+            const senderNumber = <?= json_encode($client['num']) ?>;
             const singleAmountInput = document.getElementById('transfert_valeur');
             const singleFeeSelect = document.getElementById('with_fee');
             const singleFeePreview = document.querySelector('[data-single-fee-preview]');
@@ -161,6 +166,26 @@
                 return rule ? Number(rule.valeur) : 0;
             }
 
+            function operatorIdForNumber(number) {
+                const value = String(number || '').trim();
+                const operator = operators.find(function (entry) {
+                    return String(entry.prefixes || '').split(',').some(function (prefix) {
+                        return value.startsWith(prefix.trim());
+                    });
+                });
+                return operator ? Number(operator.id) : null;
+            }
+
+            function externalCommission(amount) {
+                const sourceId = operatorIdForNumber(senderNumber);
+                const destinationId = operatorIdForNumber(singleAmountInput.form.querySelector('[name="dest_num"]').value);
+                if (!sourceId || !destinationId || sourceId === destinationId) return 0;
+                const rule = commissionRules.find(function (entry) {
+                    return Number(entry.idOperateur) === destinationId && Number(entry.idTypeOperation) === 3;
+                });
+                return rule ? amount * Number(rule.pourcentage) / 100 : 0;
+            }
+
             // 1. Gestion du Transfert Simple (Nouvelle Logique)
             function updateSingleFeePreview() {
                 if (!singleFeePreview) {
@@ -176,10 +201,11 @@
                 }
 
                 const fee = findTransferFee(amountSaisi);
+                const commission = externalCommission(amountSaisi);
                 
                 // Avec frais : Débit = Saisi + Frais | Reçu = Saisi
                 // Sans frais : Débit = Saisi         | Reçu = Saisi - Frais
-                const totalDebite = withFee ? amountSaisi + fee : amountSaisi;
+                const totalDebite = withFee ? amountSaisi + fee + commission : amountSaisi + commission;
                 const montantRecu = withFee ? amountSaisi : amountSaisi - fee;
 
                 if (!withFee && montantRecu <= 0) {
@@ -190,8 +216,8 @@
 
                 singleFeePreview.style.display = 'block';
                 singleFeePreview.querySelector('span').textContent = withFee
-                    ? `frais ${fee.toFixed(2)} BGA, total débité ${totalDebite.toFixed(2)} BGA (Le destinataire recevra exactement ${montantRecu.toFixed(2)} BGA)`
-                    : `frais ${fee.toFixed(2)} BGA, total débité ${totalDebite.toFixed(2)} BGA (Le destinataire recevra ${montantRecu.toFixed(2)} BGA)`;
+                    ? `frais ${fee.toFixed(2)} BGA, commission externe ${commission.toFixed(2)} BGA, total débité ${totalDebite.toFixed(2)} BGA (Le destinataire recevra exactement ${montantRecu.toFixed(2)} BGA)`
+                    : `frais ${fee.toFixed(2)} BGA, commission externe ${commission.toFixed(2)} BGA, total débité ${totalDebite.toFixed(2)} BGA (Le destinataire recevra ${montantRecu.toFixed(2)} BGA)`;
             }
 
             // 2. Gestion du Transfert Multiple (Division globale puis Logique Frais)
@@ -267,6 +293,7 @@
             container.querySelector('.dest-num-field').addEventListener('input', calculateDynamicSplit);
             totalValueInput.addEventListener('input', calculateDynamicSplit);
             singleAmountInput.addEventListener('input', updateSingleFeePreview);
+            document.getElementById('dest_num').addEventListener('input', updateSingleFeePreview);
             singleFeeSelect.addEventListener('change', updateSingleFeePreview);
             multipleFeeSelect.addEventListener('change', calculateDynamicSplit);
 

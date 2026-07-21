@@ -28,3 +28,4 @@ $routes->get('/operateur/frais/(:num)/modifier', 'operateurControlleur::modifier
 $routes->post('/operateur/frais/(:num)/modifier', 'operateurControlleur::mettreAJourFrais/$1');
 $routes->post('/operateur/frais/(:num)/supprimer', 'operateurControlleur::supprimerFrais/$1');
 $routes->get('/operateur/gains', 'operateurControlleur::gains');
+$routes->get('/operateur/montants-a-envoyer', 'operateurControlleur::montantsAEnvoyer');
