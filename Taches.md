@@ -403,4 +403,3 @@ gitnz
 - [ok] Verifier que les montants correspondent aux operations enregistrees
 - [ok] Verifier que les calculs sont corrects
 ---
-Rédiger
