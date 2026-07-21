@@ -404,3 +404,13 @@ gitnz
 - [ok] Verifier que les calculs sont corrects
 ---
 Rédiger
+
+
+Aléa 1: promotion en pourcentage sur les frais de transfère pour les numéros de même opérateurs, contraintes: pourcentage stocké en base de données
+
+Etape 1, créer la table promotion
+- id, idOperateur, valeur
+
+Etape 2, regles de gestion, pour les même opérateurs, reduction pris en compte dans le controller Clientcontroller
+- Nouveau modèle, promotion
+- Modification de la fonction transfer() , ClientController
