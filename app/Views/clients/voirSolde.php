@@ -22,6 +22,7 @@
             <div class="hero-actions">
                 <a class="btn" href="/client/operations">Retour aux operations</a>
                 <a class="btn-secondary" href="/client/historique">Voir historique</a>
+                <a class="btn-ghost" href="/client/logout">Se déconnecter</a>
             </div>
         </section>
     </div>

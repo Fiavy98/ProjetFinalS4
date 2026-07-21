@@ -22,6 +22,7 @@ class InitialDataSeeder extends Seeder
         $db->query('DELETE FROM historiqueGain');
         $db->query('DELETE FROM operation');
         $db->query('DELETE FROM frais');
+        $db->query('DELETE FROM commissionAutreOperateur');
         $db->query('DELETE FROM client');
         $db->query('DELETE FROM typeOperation');
         $db->query('DELETE FROM operateur');

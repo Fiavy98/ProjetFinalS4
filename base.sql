@@ -34,12 +34,17 @@ CREATE TABLE operation (
     idClient INTEGER NOT NULL,
     valeur REAL NOT NULL,
     idFrais INTEGER,
+    idOperateurSource INTEGER,
+    idOperateurDestinataire INTEGER,
+    commission REAL NOT NULL DEFAULT 0,
     description TEXT,
     dateheure DATETIME DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (idTypeOperation) REFERENCES typeOperation(id),
     FOREIGN KEY (idClient) REFERENCES client(id),
-    FOREIGN KEY (idFrais) REFERENCES frais(id)
+    FOREIGN KEY (idFrais) REFERENCES frais(id),
+    FOREIGN KEY (idOperateurSource) REFERENCES operateur(id),
+    FOREIGN KEY (idOperateurDestinataire) REFERENCES operateur(id)
 );
 
 CREATE TABLE historiqueGain (
@@ -84,7 +89,7 @@ CREATE TABLE commissionAutreOperateur (
 
 -- Table operateur
 INSERT INTO operateur (nom, prefixes) VALUES
-('MVola', '034,038'),
+('YAS', '034,038'),
 ('Airtel Money', '033'),
 ('Orange Money', '037,032');
 
@@ -100,20 +105,20 @@ INSERT INTO typeOperation (libele) VALUES
 -- Table frais
 -- Depot
 INSERT INTO frais (idTypeOperation, min, max, valeur) VALUES
-(1, 0, 10000, 100),
-(1, 10001, 50000, 200),
+(1, 0, 10000.99, 100),
+(1, 10001, 50000.99, 200),
 (1, 50001, 1000000, 500);
 
 -- Retrait
 INSERT INTO frais (idTypeOperation, min, max, valeur) VALUES
-(2, 0, 10000, 300),
-(2, 10001, 50000, 500),
+(2, 0, 10000.99, 300),
+(2, 10001, 50000.99, 500),
 (2, 50001, 1000000, 1000);
 
 -- Transfert
 INSERT INTO frais (idTypeOperation, min, max, valeur) VALUES
-(3, 0, 10000, 100),
-(3, 10001, 50000, 250),
+(3, 0, 10000.99, 100),
+(3, 10001, 50000.99, 250),
 (3, 50001, 1000000, 500);
 
 
@@ -126,25 +131,31 @@ INSERT INTO client (num, mdp, nom, solde) VALUES
 ('0371122334', 'abcd', 'Andry Paul', 75000),
 ('0325566778', '0000', 'Soa Julie', 20000);
 
+-- Commission reçue par l'opérateur destinataire pour un transfert externe.
+INSERT INTO commissionAutreOperateur (idOperateur, idTypeOperation, pourcentage) VALUES
+(1, 3, 0),
+(2, 3, 5),
+(3, 3, 5);
+
 
 -- Table operation
 -- Jean fait un dépôt de 10000
 INSERT INTO operation 
-(idTypeOperation, idClient, valeur, idFrais, description)
+(idTypeOperation, idClient, valeur, idFrais, idOperateurSource, description)
 VALUES
-(1, 1, 10000, 1, 'Depot argent');
+(1, 1, 10000, 1, 1, 'Depot argent');
 
 -- Marie retire 20000
 INSERT INTO operation 
-(idTypeOperation, idClient, valeur, idFrais, description)
+(idTypeOperation, idClient, valeur, idFrais, idOperateurSource, description)
 VALUES
-(2, 2, 20000, 5, 'Retrait argent');
+(2, 2, 20000, 5, 1, 'Retrait argent');
 
 -- Paul transfert 5000
 INSERT INTO operation 
-(idTypeOperation, idClient, valeur, idFrais, description)
+(idTypeOperation, idClient, valeur, idFrais, idOperateurSource, description)
 VALUES
-(3, 3, 5000, 7, 'Transfert vers client');
+(3, 3, 5000, 7, 1, 'Transfert vers client');
 
 
 -- Table historiqueGain
@@ -159,8 +170,8 @@ VALUES
 INSERT INTO gain (idOperateur, idHistorique, valeur)
 VALUES
 (1, 1, 100),
-(2, 2, 500),
-(3, 3, 100);
+(1, 2, 500),
+(1, 3, 100);
 
 
 -- Table historiqueOperationClient
@@ -170,4 +181,3 @@ VALUES
 (1,1),
 (2,2),
 (3,3);
-

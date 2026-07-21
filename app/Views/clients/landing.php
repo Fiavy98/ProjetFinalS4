@@ -37,7 +37,6 @@
 
         <section class="hero-grid">
             <article class="panel hero">
-                <span class="eyebrow">Projet CodeIgniter 4 + SQLite</span>
                 <h1>Une expérience mobile money claire, rapide et moderne.</h1>
                 <p class="lead">
                     Dépôt, retrait, transfert, solde et historique client dans une interface épurée,

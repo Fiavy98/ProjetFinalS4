@@ -298,6 +298,12 @@ gitnz
     - idOperateur
     - idTypeOperation
     - pourcentage
+    
+- [ok] modifier la table operation 
+    - ajoute colonne 
+        - idOperateurSource
+        - idOperateurDestinataire
+        - commission
 
 - [ok] Configurer le pourcentage de commission pour chaque operateur et type d operation
 
